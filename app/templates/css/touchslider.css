@@ -1,0 +1,124 @@
+/*******************************************************************************
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************/
+
+.cell h1 {
+    font-family: Verdana,Arial,Sans-serif;
+    font-size: 30px;
+    line-height: 48px;
+    text-align: center;
+    padding: 10px;
+    margin: 0px;
+}
+
+#output {
+    border: thin solid lightgray;
+    padding: 1em;
+}
+
+
+.slidebar {
+    width: 450px;
+    height: 250px;
+    padding-top: 5px;
+}
+
+#slidebar2 {
+    width: 450px;
+    height: 250px;
+    padding-top: 5px;
+}
+#slidebar3 {
+    width: 450px;
+    height: 250px;
+    padding-top: 5px;
+}
+
+#slidebar4 {
+    width: 450px;
+    height: 250px;
+    padding-top: 5px;
+}
+
+#slidebar5 {
+    width: 450px;
+    height: 250px;
+    padding-top: 5px;
+}
+
+
+#slidecont {
+    font-size: 18px;
+    line-height: 22px;
+    font-family:Georgia,"Times New Roman","Bitstream Charter",Times,serif;
+    font-family: Verdana,Arial,Sans-serif;
+    overflow: hidden;
+}
+#slidecont2 {
+    font-size: 18px;
+    line-height: 22px;
+    font-family:Georgia,"Times New Roman","Bitstream Charter",Times,serif;
+    font-family: Verdana,Arial,Sans-serif;
+    overflow: hidden;
+}
+
+#slidecont3 {
+    font-size: 18px;
+    line-height: 22px;
+    font-family:Georgia,"Times New Roman","Bitstream Charter",Times,serif;
+    font-family: Verdana,Arial,Sans-serif;
+    overflow: hidden;
+}
+#slidecont4 {
+    font-size: 18px;
+    line-height: 22px;
+    font-family:Georgia,"Times New Roman","Bitstream Charter",Times,serif;
+    font-family: Verdana,Arial,Sans-serif;
+    overflow: hidden;
+}
+#slidecont5 {
+    font-size: 18px;
+    line-height: 22px;
+    font-family:Georgia,"Times New Roman","Bitstream Charter",Times,serif;
+    font-family: Verdana,Arial,Sans-serif;
+    overflow: hidden;
+}
+
+.touchslidearticle #slidecont {
+    margin-left: -50px;
+    margin-right: -25px;
+}
+
+#slidecont.sliding {
+    border: thin solid orange;
+}
+
+.touchslidearticle #slidecont2 {
+    margin-left: -50px;
+    margin-right: -25px;
+}
+
+#slidecont2.sliding {
+    border: thin solid orange;
+}
+
+.cell {
+}
+
+.cell p {
+    padding: 10px;
+    padding-bottom: 0px;
+}
+
