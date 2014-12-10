@@ -1,14 +1,6 @@
                 $( document ).ready(function() {
 
-                    alert("{% with messages = get_flashed_messages() %}"+
-                    "{% if messages %}"+
-                    "{% for message in messages %}"+
-                    "<li>{{ message }} </li>"+
-                    "{% endfor %}"+
-                    "</ul>"+
-                    "{% endif %}"+
-                  "{% endwith %}");
-    
+                      
                       //make a call to search.php onchange
                       $('#query').keypress(function(){
 

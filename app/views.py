@@ -1,67 +1,188 @@
 from app import app
-
-
-from flask import request, redirect, url_for, send_from_directory ,flash ,render_template
+from models import User , User_Preferences
+from flask import request, redirect, url_for, send_from_directory ,flash ,render_template ,g ,session
 from flask_debugtoolbar import DebugToolbarExtension
 from flaskext.mysql import MySQL
-from flask.ext.login import LoginManager
-import json
+from flask.ext.login import LoginManager , login_user, logout_user, current_user, login_required , UserMixin
+import json,datetime,time
+import MySQLdb
 from user_agents import parse
-from .forms import LoginForm
+from forms import LoginForm
+from app import lm,oid,db
+from flask_googlelogin import GoogleLogin
+from flask.ext.social import Social
+from flask.ext.social.datastore import SQLAlchemyConnectionDatastore
+from flask.ext.security import Security , SQLAlchemyUserDatastore
+from oauth import OAuthSignIn
+
 #app = Flask(__name__)
 
 #login_manager = LoginManager()
 #login_manager.init_app(app)
 #configure the database
+
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'admin'
 app.config['MYSQL_DATABASE_DB'] = 'pmp'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
+googlelogin = GoogleLogin(app)
+app.config['SOCIAL_GOOGLE'] = {
+    'consumer_key': '969188133123-6tbmkj0oe22pcr693tf7ljv8pcvn4u50.apps.googleusercontent.com',
+    'consumer_secret': 'j_hcIMGTVS9_cOrg4YsVgBBL'
+}
+app.config['OAUTH_CREDENTIALS'] = {
+    'facebook': {
+        'id': '1598411600380707',
+        'secret': '2856eb415bbb9d7ea6b898394ee80f82'
+    },
+    'twitter': {
+        'id': '3RzWQclolxWZIMq5LJqzRZPTl',
+        'secret': 'm9TEd58DSEtRrZHpz2EjrV9AhsBRxKMo8m3kuIZj3zLwzwIimt'
+    },
+    'google': {
+        'id': '969188133123-6tbmkj0oe22pcr693tf7ljv8pcvn4u50.apps.googleusercontent.com',
+        'secret': 'j_hcIMGTVS9_cOrg4YsVgBBL'
+    }
+}
 
-'''
-@login_manager.user_loader
-def load_user(userid):
-	if not(userid):
-		redirect(url_for('login'))
-	return User.get(userid)
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        # login and validate the user...
-        login_user(user)
-        flash("Logged in successfully.")
-        return redirect(request.args.get("next") or url_for("index"))
-    return render_template("login.html", form=form)
-'''
 
 
+@lm.user_loader
+def load_user(id):
+    return User.query.get(int(id))
 
-@app.route("/")
+@app.before_request
+def before_request():
+    g.user = current_user
+
+
 @app.route("/index")
+@login_required
 def hello_world():
 	ua = request.headers.get('User-Agent')
 	user_agent = parse(ua)
 	if user_agent.is_pc:
-		return render_template('index.html')
+		user = g.user.nickname
+		image = g.user.image
+		return render_template('index.html',title='home',user=user,image=image)
 	elif user_agent.is_mobile:
 		return render_template('index-mobile.html')
 
-
+@app.route("/")
 @app.route('/login', methods=['GET', 'POST'])
+@oid.loginhandler
 def login():
+    if g.user is not None and g.user.is_authenticated():
+    	print g.user
+        return redirect("/index")
     form = LoginForm()
     if form.validate_on_submit():
-        flash('Login requested for OpenID="%s", remember_me=%s' %
-              (form.openid.data, str(form.remember_me.data)))
-        return redirect('/index')
-    return render_template('login.html', 
+        session['remember_me'] = form.remember_me.data
+        return oid.try_login(form.openid.data, ask_for=['nickname', 'email','image','gender','country','phone','dob','timezone'])
+    return render_template('login.html',
                            title='Sign In',
                            form=form,
                            providers=app.config['OPENID_PROVIDERS'])
+
+def dump(obj):
+  for attr in dir(obj):
+    print "obj.%s = %s" % (attr, getattr(obj, attr))
+
+
+@app.route('/authorize/<provider>')
+def oauth_authorize(provider):
+    if not current_user.is_anonymous():
+        return redirect('/index')
+    oauth = OAuthSignIn.get_provider(provider)
+    return oauth.authorize()
+
+
+@app.route('/callback/<provider>')
+def oauth_callback(provider):
+    if not current_user.is_anonymous():
+        return redirect('/index')
+    oauth = OAuthSignIn.get_provider(provider)
+    social_id, username, email,gender,timezone,image,locale = oauth.callback()
+    #print image
+    if social_id is None:
+        flash('Authentication failed.')
+        return redirect('/index')
+    user = User.query.filter_by(social_id=social_id).first()
+    if not user:
+        user = User(social_id=social_id, nickname=username, email=email,gender=gender,timezone=timezone,image=image,country=locale)
+        db.session.add(user)
+        db.session.commit()
+    login_user(user, True)
+    return redirect('/index')
+
+
+@oid.after_login
+def after_login(resp):
+    if resp.email is None or resp.email == "":
+    	flash('Invalid login. Please try again.')
+    	return redirect(url_for('login'))
+    dump(resp)
+    user = User.query.filter_by(email=resp.email).first()
+    if user is None:
+        nickname = resp.nickname
+        if nickname is None or nickname == "":
+            nickname = resp.email.split('@')[0]
+        user = User(nickname=nickname, email=resp.email)
+        db.session.add(user)
+        db.session.commit()
+    remember_me = False
+    if 'remember_me' in session:
+        remember_me = session['remember_me']
+        session.pop('remember_me', None)
+    login_user(user, remember=remember_me)
+    return redirect(request.args.get('next') or url_for('index'))
+
+
+@app.route('/add_preferences',methods=['POST','GET'])
+@login_required
+def add_preferences():
+	if request.method=="GET":
+		user = g.user.nickname
+		email = g.user.email
+		return render_template('preferences.html',user=user,email=email)
+	elif request.method=="POST":
+		userName = request.form["user"]
+		userEmail = request.form["email"]
+		bundleId = request.form["bundleId[0][]"]
+		
+		aa = User_Preferences.query.filter_by(email=userEmail).first()
+		if aa:
+			b = aa.preferences
+			bundleId = bundleId + ";"+b
+		print bundleId
+		db1 = MySQLdb.connect("localhost","root","admin","login_users" )
+		cursor =db1.cursor()
+		if(aa and aa.email):
+			aa.preferences = bundleId
+			db.session.commit()
+		else:
+			cursor.execute("INSERT INTO  `login_users`.`user__preferences` (`nickname` ,`preferences` ,`last_accessed` ,`last_updated` ,`email`) VALUES ('"+userName+"',  '"+bundleId+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+userEmail+"');")
+			print "INSERT INTO  `login_users`.`user__preferences` (`nickname` ,`preferences` ,`last_accessed` ,`last_updated` ,`email`) VALUES ('"+userName+"',  '"+bundleId+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+userEmail+"');"
+			db1.commit()
+		return "Success"			
+
+
+@app.route('/get_preferences',methods=['POST','GET'])
+@login_required
+def get_preferences():
+	if request.method == "POST":
+		user = json.loads(request.data)
+		userName = user["user"]
+		email = user["email"]
+		return "success"
+		
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect('/index')
 
 
 
@@ -129,6 +250,7 @@ def categories():
 @app.route("/search",methods=['POST'])
 def search():
 	if request.method == "POST":
+		app.config['MYSQL_DATABASE_DB'] = 'pmp'
 		query = request.form['query']
 		cursor = mysql.connect().cursor()
 		cursor.execute("SELECT DISTINCT `bundle_id` FROM `app_desc` WHERE `app_name` LIKE '%"+query+"%' LIMIT 10")

@@ -1,29 +1,271 @@
-<script type="text/javascript">
-function set_openid(openid, pr)
-{
-    u = openid.search('<username>')
-    if (u != -1) {
-        // openid requires username
-        user = prompt('Enter your ' + pr + ' username:')
-        openid = openid.substr(0, u) + user
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <title>PmP For Android</title>
+    <meta name="description" content="Flat Design Mini Portfolio">
+    <meta name="keywords" content="responsive, bootstrap, Privacy, Android, App Scanner">
+    <meta name="author" content="Dzyngiri">
+    <meta name="description" content="This is an app to protect your privacy and act against the apps which take illegal data from your phone ">
+    <!-- styles -->
+    <script src="https://apis.google.com/js/client:platform.js" async defer></script>    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ url_for('static', filename='bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='font/css/fontello.css') }}" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/touchslider.css') }}" />
+    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/4.2.1/bootstrap-social.css">
+  <script src="{{ url_for('static', filename='js/jquery-1.10.2.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/touchslider.js') }}"></script>
+  
+  <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+    </head>
+    <body style="overflow-y:hidden">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container"> 
+              <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span> 
+                 <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+               </a> 
+            <a class="brand" href="index.php"><img src="{{url_for('static',filename='img/user.jpg') }}" /></a>
+            <ul class="nav nav-collapse pull-right">
+              <!--li style="margin-right: 0px;"><a href="index" ><i class="icon-user"></i> Profile</a></li-->
+              <li style="margin-left: 10px;"><a href="#" class="active"><i class="icon-paper-plane"></i> Login</a></li>
+            </ul>
+        </div>
+      </div>
+    </div>
+    <!--Profile container-->
+    <div class="container profile" style="width:100%;">
+
+      <div class="span4">
+            
+       
+      </div>
+      
+      <div class="span4">
+              <h2>I don't know you!</h2>
+            <p ><a style="text-align:center;padding-left:0" class="btn btn-block btn-social btn-facebook" href="{{ url_for('oauth_authorize', provider='facebook') }}">
+                    <i class="fa fa-facebook" style="font-size:1.3em;top:5px"></i> Sign in with Facebook
+            </a></p>
+            <p style="color:#222;text-align:center">
+              or
+            </p>
+            <p><a style="text-align:center;padding-left:0" href="{{ url_for('oauth_authorize', provider='twitter') }}" class="btn btn-block btn-social btn-twitter"> <i class="fa fa-twitter" style="font-size:1.3em;top:5px"></i> Sign in with Twitter</a></p> 
+
+            <p style="color:#222;text-align:center">
+              or
+            </p>
+            <p><a style="text-align:center;padding-left:0" href="{{ url_for('oauth_authorize', provider='google') }}" class="btn btn-block btn-social btn-google-plus"> <i class="fa fa-google" style="font-size:1.3em;top:5px"></i> Sign in with Google</a></p> 
+
+              <!--div class="login-container" style="width:400px;margin:20px;padding:20px;background:white;border-radius:10px">
+            <div class="avatar">
+                <span style='font-weight: bolder;color: skyblue;font-size: x-large;'>Sign In</span>
+            </div>
+            <br>
+            <div>
+                
+            </div>
+            <div class="form-box">
+                <div>
+                    <form action="/login" method="post" name="login">
+                        {{ form.hidden_tag() }}
+                        <p>
+                            Please enter your OpenID, or select one of the providers below:<br>
+                            {{ form.openid(size=80) }}
+                            {% for error in form.openid.errors %}
+                              <span style="color: red;">[{{error}}]</span>
+                            {% endfor %}<br>
+                            |{% for pr in providers %}
+                              <a href="javascript:set_openid('{{ pr.url }}', '{{ pr.name }}');">{{ pr.name }}</a> |
+                            {% endfor %}
+                        </p>
+                        <p style="color:#222;">{{ form.remember_me }} Remember Me</p>
+                        <p><input type="submit" value="Sign In" class="btn btn-info btn-block" name='login'></p>
+                    </form>
+
+            </div>
+        </div>
+
+      </div>
+      <div class="span4"></div>
+   </div-->
+    <!--END: Profile container-->
+    <!-- Social Icons -->
+    
+    <!-- END: Social Icons -->
+    <!-- Footer -->
+    <div class="footer" style="left:0;height:50px">
+      <div class="container">
+        <p class="pull-left" style="margin-top:10px"><a href="#">Copyright &#169; SynergyLabs</a></p>
+        <p class="pull-right" style="margin-top:10px"><a href="#myModal" role="button" data-toggle="modal"> <i class="icon-mail"></i> CONTACT</a></p>
+      </div>
+    </div>
+        <script type="text/javascript">
+        function set_openid(openid, pr)
+        {
+            u = openid.search('<username>')
+            if (u != -1) {
+                // openid requires username
+                user = prompt('Enter your ' + pr + ' username:')
+                openid = openid.substr(0, u) + user
+            }
+            form = document.forms['login'];
+            form.elements['openid'].value = openid
+        }
+
+        </script>
+        <script type="text/javascript">
+var helper = (function() {
+  var BASE_API_PATH = 'plus/v1/';
+
+  return {
+    /**
+     * Hides the sign in button and starts the post-authorization operations.
+     *
+     * @param {Object} authResult An Object which contains the access token and
+     *   other authentication information.
+     */
+    onSignInCallback: function(authResult) {
+      gapi.client.load('plus','v1').then(function() {
+        $('#authResult').html('Auth Result:<br/>');
+        for (var field in authResult) {
+          $('#authResult').append(' ' + field + ': ' +
+              authResult[field] + '<br/>');
+        }
+        if (authResult['access_token']) {
+          gapi.auth.signIn({ 'scope': 'email' });
+          $('#authOps').show('slow');
+          $('#gConnect').hide();
+          var prof = helper.profile();
+          helper.people();
+          var url = '/googleLogIn';
+          var form = $('<form action="' + url + '" method="post">' +
+            '<input type="text" name="name" value="' + prof.displayName + '" />' +
+            '<input type="text" name="gender" value="' + prof.gender + '" />' +
+            '<input type="text" name="image_url" value="' + prof.image.url + '" />' +
+
+            '</form>');
+          $('body').append(form);
+          //form.submit();
+          //window.location.href("/googleLogIn");
+        } else if (authResult['error']) {
+          // There was an error, which means the user is not signed in.
+          // As an example, you can handle by writing to the console:
+          console.log('There was an error: ' + authResult['error']);
+          $('#authResult').append('Logged out');
+          $('#authOps').hide('slow');
+          $('#gConnect').show();
+        }
+        console.log('authResult', authResult);
+      });
+    },
+
+    /**
+     * Calls the OAuth2 endpoint to disconnect the app for the user.
+     */
+    disconnect: function() {
+      // Revoke the access token.
+      $.ajax({
+        type: 'GET',
+        url: 'https://accounts.google.com/o/oauth2/revoke?token=' +
+            gapi.auth.getToken().access_token,
+        async: false,
+        contentType: 'application/json',
+        dataType: 'jsonp',
+        success: function(result) {
+          console.log('revoke response: ' + result);
+          $('#authOps').hide();
+          $('#profile').empty();
+          $('#visiblePeople').empty();
+          $('#authResult').empty();
+          $('#gConnect').show();
+        },
+        error: function(e) {
+          console.log(e);
+        }
+      });
+    },
+
+    /**
+     * Gets and renders the list of people visible to this app.
+     */
+    people: function() {
+      gapi.client.plus.people.list({
+        'userId': 'me',
+        'collection': 'visible'
+      }).then(function(res) {
+        var people = res.result;
+        $('#visiblePeople').empty();
+        $('#visiblePeople').append('Number of people visible to this app: ' +
+            people.totalItems + '<br/>');
+        for (var personIndex in people.items) {
+          person = people.items[personIndex];
+          $('#visiblePeople').append('<img src="' + person.image.url + '">');
+        }
+      });
+    },
+
+    /**
+     * Gets and renders the currently signed in user's profile data.
+     */
+    profile: function(){
+      gapi.client.plus.people.get({
+        'userId': 'me'
+      }).then(function(res) {
+        var profile = res.result;
+        console.log(profile);
+        return profile;
+        $('#profile').empty();
+        $('#profile').append(
+            $('<p><img src=\"' + profile.image.url + '\"></p>'));
+        $('#profile').append(
+            $('<p>Hello ' + profile.displayName + '!<br />Tagline: ' +
+            profile.tagline + '<br />About: ' + profile.aboutMe + '</p>'));
+        if (profile.cover && profile.coverPhoto) {
+          $('#profile').append(
+              $('<p><img src=\"' + profile.cover.coverPhoto.url + '\"></p>'));
+        }
+      }, function(err) {
+        var error = err.result;
+        $('#profile').empty();
+        $('#profile').append(error.message);
+      });
     }
-    form = document.forms['login'];
-    form.elements['openid'].value = openid
+  };
+})();
+
+/**
+ * jQuery initialization
+ */
+$(document).ready(function() {
+  $('#disconnect').click(helper.disconnect);
+  $('#loaderror').hide();
+  if ($('[data-clientid="YOUR_CLIENT_ID"]').length > 0) {
+    alert('This sample requires your OAuth credentials (client ID) ' +
+        'from the Google APIs console:\n' +
+        '    https://code.google.com/apis/console/#:access\n\n' +
+        'Find and replace YOUR_CLIENT_ID with your client ID.'
+    );
+  }
+});
+
+/**
+ * Calls the helper method that handles the authentication flow.
+ *
+ * @param {Object} authResult An Object which contains the access token and
+ *   other authentication information.
+ */
+function onSignInCallback(authResult) {
+  helper.onSignInCallback(authResult);
 }
 </script>
-<h1>Sign In</h1>
-<form action="" method="post" name="login">
-    {{ form.hidden_tag() }}
-    <p>
-        Please enter your OpenID, or select one of the providers below:<br>
-        {{ form.openid(size=80) }}
-        {% for error in form.openid.errors %}
-          <span style="color: red;">[{{error}}]</span>
-        {% endfor %}<br>
-        |{% for pr in providers %}
-          <a href="javascript:set_openid('{{ pr.url }}', '{{ pr.name }}');">{{ pr.name }}</a> |
-        {% endfor %}
-    </p>
-    <p>{{ form.remember_me }} Remember Me</p>
-    <p><input type="submit" value="Sign In"></p>
-</form>
+
+    </body>
+  </html>

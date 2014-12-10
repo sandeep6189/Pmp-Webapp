@@ -1,0 +1,106 @@
+
+    <!DOCTYPE html>
+    <html lang="en" ng-app='preferences'>
+    <head>
+    <meta charset="utf-8">
+    <title>PmP For Android</title>
+    <meta name="description" content="Flat Design Mini Portfolio">
+    <meta name="keywords" content="responsive, bootstrap, Privacy, Android, App Scanner">
+    <meta name="author" content="Dzyngiri">
+    <meta name="description" content="This is an app to protect your privacy and act against the apps which take illegal data from your phone ">
+    <!-- styles -->
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ url_for('static', filename='bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}" rel="stylesheet">
+     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='font/css/fontello.css') }}" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/touchslider.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.mobile.custom.theme.min.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery-1.10.2.js') }}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+    <script src="{{ url_for('static', filename='js/touchslider.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/preferences.js') }}"></script>
+
+  
+  <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+    </head>
+    <body style="overflow-y:hidden">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container" style="width:90%"> 
+              <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span> 
+                 <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+               </a> 
+            <a class="brand" href="index.html"><img src="{{url_for('static',filename='img/user.jpg') }}"/></a>
+            <ul class="nav nav-collapse pull-right">
+              <li style="margin-right: 0px;"><a href="/"><i class="icon-user"></i> Profile</a></li>
+               <li style="margin-left: 10px"><a href="#" class="active" ><i class="icon-paper-plane"></i> Add Preferences </a></li>
+               <li style="margin-left: -25px;"><a href="/logout" ><i class="icon-paper-plane"></i> Logout</a></li>
+            </ul>
+          <!-- Everything you want hidden at 940px or less, place within here -->
+          <div class="nav nav-collapse pull-right">
+            <!-- .nav, .navbar-search, .navbar-form, etc -->
+                   
+                <input type="text" class="form-control" placeholder="Search" style="width:100%;height:20px;margin-top:12%" name="" id="">
+                <span class="glyphicon glyphicon-star"></span>
+              
+          </div>
+            <div class="UserName" style="margin-top:30px"><p>Welcome , {{ user }}</p></div>
+            <div style="display:none" id="current_user">{{ user }}</div>
+            <div style="display:none" id="current_user_email">{{ email }}</div>
+        </div>
+      </div>
+
+    </div>
+    <!--Profile container-->
+    <div class="container profile" style="width:100%;">
+
+      <div class="span4">
+        <h3 style="color:rgb(12, 197, 127);font-weight:bold">Current Preferred Apps</h3>
+        <div id="preferred_apps" ng-controller="AppController as app">
+          
+        </div>
+      </div>
+      <div class="span4">
+        <h3 style="color:rgb(12, 197, 127);font-weight:bold">Add Apps</h3>
+          <div ng-controller="SearchPreferenceController">
+             <input type="text" class="form-control" placeholder="Search" style="width:100%;height:20px;" name="query" ng-model="query" id="query"> 
+             <ol style="list-style:none"> 
+                <li class="stbody" ng-repeat="app in apps">
+                    <div class="stimg">
+                        <img ng-src="[[app.icon]]" width="60" height="60" />
+                    </div> 
+                    <div class="sttext">
+                        [[app.app_name]]
+                        <div class="sttime">Avg.Rating [[app.avg_rating]]</div>
+                        <div class="add_app pull-right" style="margin-top:-40px"><button class="btn" ng-click="addPreference([[app.bundle_id]])">Add</button></div> 
+                    </div> 
+                </li> 
+
+            </ol>
+          </div>
+      </div>     
+      <div class="span4">
+          
+      </div>
+   </div>
+    <!--END: Profile container-->
+    <!-- Social Icons -->
+    
+    <!-- END: Social Icons -->
+    <!-- Footer -->
+    <div class="footer" style="left:0;height:50px">
+      <div class="container">
+        <p class="pull-left" style="margin-top:10px"><a href="#">Copyright &#169; SynergyLabs</a></p>
+        <p class="pull-right" style="margin-top:10px"><a href="#myModal" role="button" data-toggle="modal"> <i class="icon-mail"></i> CONTACT</a></p>
+      </div>
+    </div>
+    
+    </body>
+  </html>
