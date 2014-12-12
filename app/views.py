@@ -222,6 +222,8 @@ def top_free_apps():
 		lis = []
 		for row in data:
 			row_data = {}
+			row_data["version"] = row[3]
+			row_data["genre"] = row[5]
 			row_data["app_name"] = row[4]
 			row_data["icon"] = row[7]
 			row_data["track_url"] = row[6]
@@ -240,6 +242,8 @@ def top_paid_apps():
 		lis = []
 		for row in data:
 			row_data = {}
+			row_data["version"] = row[3]
+			row_data["genre"] = row[5]
 			row_data["app_name"] = row[4]
 			row_data["icon"] = row[7]
 			row_data["track_url"] = row[6]
@@ -264,12 +268,15 @@ def categories():
 		data = data+data2
 		for row in data:
 			row_data = {}
+			row_data["version"] = row[3]
+			row_data["genre"] = row[5]
 			row_data["app_name"] = row[4]
 			row_data["icon"] = row[7]
 			row_data["track_url"] = row[6]
 			row_data["avg_rating"] = row[10]
 			row_data["bundle_id"] = row[1]
 			lis.append(row_data)
+			#print row_data
 		return json.dumps(lis)
 
 def get_data_from_id(data):
@@ -311,7 +318,7 @@ def info():
 			<div class='arrow-left'>
 			</div>
 			<div class='rect' style='padding-top:5px;'>
-			<span class='rect-text' style='margin-left:2px'>Back</span>
+			<span class='rect-text' style='margin-left:4px'>Back</span>
 			</div>
 		</div>
 	<h2>Info</h2>
@@ -364,9 +371,7 @@ def app_details():
 	if request.method == "POST":
 		img = request.form['img_src']
 		url = request.form['url']
-		#div_id = request.form['div_id']
 		idd =  request.form['id']
-		#print img,url,div_id
 		cursor = mysql.connect().cursor()
 		cursor.execute("SELECT * FROM  `top_paid_apps` WHERE bundle_id = "+idd+" UNION SELECT *	FROM  `top_free_apps` WHERE bundle_id = "+idd+"")
 		row = cursor.fetchone()
@@ -409,10 +414,12 @@ def search_results():
 		img = request.form['img_src']
 		url = request.form['url']
 		idd =  request.form['id']
+		#print idd
 		cursor = mysql.connect().cursor()
 		cursor.execute("SELECT app_desc.app_name,app_desc.version,app_desc.genre, rating.avg_rating FROM app_desc INNER JOIN images ON app_desc.bundle_id = images.bundle_id	INNER JOIN rating ON images.bundle_id = rating.bundle_id INNER JOIN bundle ON rating.bundle_id = bundle.bundle_id WHERE app_desc.bundle_id =  '"+idd+"' LIMIT 10")
 		row = cursor.fetchone()
 		cursor.close()
+		#print row
 		app_name = row[0]
 		icon = img
 		track_url = url

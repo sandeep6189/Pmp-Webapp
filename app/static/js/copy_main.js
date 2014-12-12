@@ -1,6 +1,7 @@
                 $( document ).ready(function() {
 
-                      
+                      var stack = [];
+
                       $(document).delegate('.accordion-toggle','click', function(event){
                             event.preventDefault();
                             // create accordion variables
@@ -69,8 +70,9 @@
                      // alert($(window).width()+","+$(window).height());
 
                     $.get('/top_free_apps',function(data){
-
+                      localStorage.setItem("free_apps",data);
                       var top_apps = eval('('+data+')');
+
                       //alert(top_apps[0]["app_name"]);
                             var names = [];
                             var icon_links = [];
@@ -105,6 +107,7 @@
                           touchslider.createSlidePanel('#slidebar', 50, 20);
                     });
                     $.get('/top_paid_apps',function(data){
+                      localStorage.setItem("paid_apps",data);
                       var top_apps = eval('('+data+')');
                       //alert(top_apps[0]["app_name"]);
                             var names = [];
@@ -142,11 +145,12 @@
                     });
 
                 var categories = ["Entertainment","Games","Photo & Video"]
-
+                 var c_all = ["fun","games","photo"];
                 $.each(categories,function(index,value)
                 {
 
                   $.post('/categories',{category:value},function(data){
+                    localStorage.setItem(c_all[index],data);
                       var top_apps = eval('('+data+')');
                       //alert(top_apps[0]["app_name"]);
                             var names = [];
@@ -193,6 +197,7 @@
                         //id screen_id is app_drop , so we need to replace it when click back
                         //take the current dump of the files and store it in a global variable 
                         dump_screen = $('#app_drop').html();
+                        stack.push(dump_screen);
                         //now we can replace it with info screen 
                         $.get('/info',function(data){
 
@@ -208,6 +213,7 @@
                         //take the current dump of the files and store it in a global variable 
                         dump_screen = $('#app_drop').html();
                         //now we can replace it with info screen 
+                        stack.push(dump_screen);
                         $.get('/info.php',function(data){
 
                             $('#app_drop').html(data);
@@ -216,17 +222,28 @@
 
                     });
 
+
+
                      $(document).delegate('#back', 'click', function() {
-                        $('#app_drop').html(dump_screen);
+                      if(stack.length>0)
+                      {
+                        var current = stack.pop();
+                        $('#app_drop').html(current);
+                      }
                       });
 
-                      $(document).delegate('#back', 'tap', function() {
-                        $('#app_drop').html(dump_screen);
+                      $(document).delegate('#back', 'tap', function() {    
+                       if(stack.length>0)
+                      {
+                        var current = stack.pop();
+                        $('#app_drop').html(current);
+                      }
                       });
 
                      $(document).delegate('.curve', 'click', function() {
                         
                         dump_screen = $('#app_drop').html();
+                        stack.push(dump_screen);  
                         //now we can give the id , track_url and img source to the next u.i screen
                         var div_id = $(this).closest('div').parents('div').attr('id');
                         //alert(div_id);
@@ -308,6 +325,7 @@
                      $(document).delegate('.curve', 'tap', function() {
                         
                         dump_screen = $('#app_drop').html();
+                        stack.push(dump_screen);
                         //now we can give the id , track_url and img source to the next u.i screen
                         var div_id = $(this).closest('div').parents('div').attr('id');
                         //alert(div_id);
@@ -320,6 +338,13 @@
                       });
 
                      $(document).delegate('#mobile_search','keypress',function(){
+                        if($('#back').css('display') == 'none')
+                        {
+                          //alert("Not visible yet");
+                          dump_screen = $('#app_drop').html();
+                          stack.push(dump_screen);
+                        }
+                        $('#back').show();
                         var panel_data =  $('#search_panel').html();
                         $('#search_panel').html("");
                         var query = $('#mobile_search').val();
@@ -338,6 +363,7 @@
 
                     $(document).delegate('.expa', 'click', function() {
                         dump_screen = $('#app_drop').html();
+                        stack.push(dump_screen);
                         //now we can give the id , track_url and img source to the next u.i screen
                         //var div_id = $(this).closest('div').parents('div').attr('id');
                         //alert(div_id);
@@ -347,69 +373,69 @@
                               
                               
                               var html_str = "<div style='width:100%;color:#fff;margin:0px'><div class='mobile-row2' style='width:100%;height:80px;text-align:center;position:relative'>"+
-        "<h4 class='info-pmp'>"+
-          "Inside App"+
-        "</h4>"+
-        "<div id='back'>"+
-          "<div class='arrow-left'>"+
-          "</div>"+
-          "<div class='rect' style='padding-top:5px'>"+
-          "<span class='rect-text'>Back</span>"+
-          "</div>"+
-        "</div>"+
-      "</div>"+
+                              "<h4 class='info-pmp'>"+
+                                "Inside App"+
+                              "</h4>"+
+                              "<div id='back'>"+
+                                "<div class='arrow-left'>"+
+                                "</div>"+
+                                "<div class='rect' style='padding-top:5px'>"+
+                                "<span class='rect-text'>Back</span>"+
+                                "</div>"+
+                              "</div>"+
+                            "</div>"+
 
-      "<div class='mobile-row2' style='width:100%;height:75px;text-align:center;position:relative;margin-top:0px'>"+
-          "<ul style='margin:0px'>"+
-            "<li class='mob_lis' style='left:0px'>"+
+                            "<div class='mobile-row2' style='width:100%;height:75px;text-align:center;position:relative;margin-top:0px'>"+
+                                "<ul style='margin:0px'>"+
+                                  "<li class='mob_lis' style='left:0px'>"+
 
-            "<a href="+form[1]+"><img src=' "+form[2]+" ' width=50 height=50 style='margin:10px;border-radius: 6px;border: 2px solid beige;'></a>"+
-            
-            "</li>"+
-            
-            "<li class='mob_lis' style='left:24%;top:10px;font-weight:bolder;font-size:smaller;width:50%;'>"+
-                "<div style='margin-left:16%;float:left'> "+form[3]+"</div><br>"+
-                "<div style='font-weight:100;margin-left:16%;float:left'> "+form[4]+"</div><br>"+
-                "<div style='font-weight:100;margin-left:16%;float:left;font-size:10px'>"+form[5]+"</div>"+
-            "</li>"+
-            
-            "<li class='mob_lis' style='right:0px'>"+
-            "<p id='app_ratings' style='margin-top:20px;font-size:12px'>"+
-                       " "+form[0]+" "+
-                       " </p> "+ 
-            "</li>"+
-          "</ul>"+
-      "</div>"+
-   
-      "<div class='mobile-row2' id='slider' style='width:100%;height:375px;text-align:center;position:relative;margin-top:0px'>"+
-        "<div class='swipe' id='slider-content'>"+
-          "<div class='swipe-wrap'>"+
-            "<div>"+
-                "<div class='header mobile-row2' style='padding:5px;'>"+
-                  "Overview"+
-                "</div>"+
-                "<div id='overview'>"+ 
-        
-                    "<ul data-role='listview' id='myList' data-inset='true' data-theme='b'>"+
-                    "<li><a href='#'>Tracks usage (Flurry analytics)</a></li>"+
-                    "<li><a href='#'>Can read your Calendar</a></li>"+
-                    "<li><a href='#''>May drain battery tracking location</a></li>"+
-                    "<li><a href='#'>Connects to Twitter</a></li>"+
-                    "<li><a href='#'>Connects to Facebook</a></li>"+
-                    "<li><a href='#'>Access to Contacts</a></li>"+
-                    "<li><a href='#''>Checks Browser History</a></li>"+
-                  "</ul>"+                      
-                  "</div>"+
-            "</div>"+
+                                  "<a href="+form[1]+"><img src=' "+form[2]+" ' width=50 height=50 style='margin:10px;border-radius: 6px;border: 2px solid beige;'></a>"+
+                                  
+                                  "</li>"+
+                                  
+                                  "<li class='mob_lis' style='left:24%;top:10px;font-weight:bolder;font-size:smaller;width:50%;'>"+
+                                      "<div style='margin-left:16%;float:left'> "+form[3]+"</div><br>"+
+                                      "<div style='font-weight:100;margin-left:16%;float:left'> "+form[4]+"</div><br>"+
+                                      "<div style='font-weight:100;margin-left:16%;float:left;font-size:10px'>"+form[5]+"</div>"+
+                                  "</li>"+
+                                  
+                                  "<li class='mob_lis' style='right:0px'>"+
+                                  "<p id='app_ratings' style='margin-top:20px;font-size:12px'>"+
+                                             " "+form[0]+" "+
+                                             " </p> "+ 
+                                  "</li>"+
+                                "</ul>"+
+                            "</div>"+
+                         
+                            "<div class='mobile-row2' id='slider' style='width:100%;height:375px;text-align:center;position:relative;margin-top:0px'>"+
+                              "<div class='swipe' id='slider-content'>"+
+                                "<div class='swipe-wrap'>"+
+                                  "<div>"+
+                                      "<div class='header mobile-row2' style='padding:5px;'>"+
+                                        "Overview"+
+                                      "</div>"+
+                                      "<div id='overview'>"+ 
+                              
+                                          "<ul data-role='listview' id='myList' data-inset='true' data-theme='b'>"+
+                                          "<li><a href='#'>Tracks usage (Flurry analytics)</a></li>"+
+                                          "<li><a href='#'>Can read your Calendar</a></li>"+
+                                          "<li><a href='#''>May drain battery tracking location</a></li>"+
+                                          "<li><a href='#'>Connects to Twitter</a></li>"+
+                                          "<li><a href='#'>Connects to Facebook</a></li>"+
+                                          "<li><a href='#'>Access to Contacts</a></li>"+
+                                          "<li><a href='#''>Checks Browser History</a></li>"+
+                                        "</ul>"+                      
+                                        "</div>"+
+                                  "</div>"+
 
-            "<div>Details</div>"+
-            "<div>Recommendations</div>"+
-          "</div>"+
-        "</div>"+
-      "</div>"+
-      "</div>"+
-    "</div>";
-    $('#app_drop').html(html_str);
+                                  "<div>Details</div>"+
+                                  "<div>Recommendations</div>"+
+                                "</div>"+
+                              "</div>"+
+                            "</div>"+
+                            "</div>"+
+                          "</div>";
+                          $('#app_drop').html(html_str);
 
 
                          }); 
@@ -427,6 +453,35 @@
                       $('.arrow_down>li:eq('+i+')').show();
                         
                       });
+
+                    var see_all = ["free_apps","paid_apps","fun","games","photo"];
+                      $.each(see_all,function(index,value)
+                        {
+                          $(document).delegate("#"+value,"tap",function(){
+                              var data = localStorage.getItem(value);
+                              var top_apps = eval('('+data+')');
+                              var str = parse_search(top_apps);
+                              dump_screen = $('#app_drop').html();
+                              stack.push(dump_screen);
+                              $('#search_panel').html(str);
+                              $('#back').show();
+                            });
+                          $('div#app_drop').scrollTop(0);
+                        });
+
+                      $.each(see_all,function(index,value)
+                        {
+                          $(document).delegate("#"+value,"click",function(){
+                              var data = localStorage.getItem(value);
+                              var top_apps = eval('('+data+')');
+                              var str = parse_search(top_apps);
+                              dump_screen = $('#app_drop').html();
+                              stack.push(dump_screen);
+                              $('#search_panel').html(str);
+                              $('#back').show();
+                            });
+                          $('div#app_drop').scrollTop(0);
+                        });
 
 
 
@@ -483,4 +538,14 @@
                       $('#app_ratings').html(str);
                   }
 
+
+                   function parse_search(s)
+                  {
+                            var str = "";
+                            for(var i =0;i<s.length;i++)
+                              {
+                                str+="<div class='mobile-row2' style='width:100%;height:75px;text-align:center;position:relative;margin-top:0px'><ul style='margin:0px'><li class='mob_lis' style='left:0px'><img src="+s[i]['icon']+" class='curve' width=50 height=50 style='margin:10px;border-radius: 6px;border: 2px solid beige;' alt="+s[i]['track_url']+" id='"+s[i]['bundle_id']+"'></li><li class='mob_lis' style='left:18%;top:10px;font-weight:bolder;font-size:smaller;width:80%;'><div style='margin-left:16%;float:left'>"+s[i]['app_name']+"</div><br><div style='font-weight:100;margin-left:16%;float:left'>"+s[i]['version']+"</div><br><div style='font-weight:100;margin-left:16%;float:left;font-size:10px'>"+s[i]['genre']+"</div></li></div>";
+                              }
+                            return str; 
+                  }
           //$('#myModal').modal('hidden');

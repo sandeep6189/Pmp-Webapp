@@ -596,3 +596,32 @@ font-family:'Georgia', Times New Roman, Times, serif
 			overflow: inherit;
 		}
 	}
+
+	#paid_apps:hover
+	{
+		cursor: pointer;
+	}
+	#free_apps:hover
+	{
+		cursor: pointer;
+	}
+	#games:hover
+	{
+		cursor: pointer;
+	}
+	#photo:hover
+	{
+		cursor: pointer;
+	}
+	#fun:hover
+	{
+		cursor: pointer;
+	}
+	.curve
+	{
+		border: 2px solid white;
+	}
+	.expa
+	{
+		border: 2px solid white;
+	}
