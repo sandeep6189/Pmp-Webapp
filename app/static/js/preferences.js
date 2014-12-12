@@ -1,5 +1,11 @@
 (function()
 {
+	/*$(function()
+        {
+           $('#preferred_apps').jScrollPane(); 
+           $('#cus_scroll').jScrollPane(); 
+        });
+	*/
 	var app = angular.module('preferences',[]);
 
 	app.config(function($interpolateProvider) {
@@ -7,12 +13,10 @@
     $interpolateProvider.endSymbol(']]');
   });
 
-	app.controller('AppController',['$http',function($http){
-		this.prefered = [];
+	app.controller('AppController',['$http','$scope',function($http,$scope){
+		$scope.prefered = [];
 		var userName = $('#current_user').html();
 		var userEmail = $('#current_user_email').html();
-		//console.log(userName);
-		//console.log(userEmail);
 		$http({
                     method: "post",
                     url: "/get_preferences",
@@ -21,8 +25,25 @@
                         email: userEmail                        
                     }
                 }).success(function(data){
-                	this.prefered = data;
+                	$scope.prefered = data;
+                	console.log($scope.prefered);
                 });
+        $scope.removePreference = function(bundleId)
+        	{
+        		var r = confirm("Are you sure you want to remove this app ?");
+        		if(r==true)
+        		{
+        			var data = {user:userName,email:userEmail,bundleId:bundleId};
+        			$.post("/remove_preferences",data,function(response){
+        					if(response==1)
+        					{
+        						alert("App removed from the list");
+        					}
+        					else
+        						alert("Try Again !");
+        			});
+        		}
+        	};
 
 	}]);
 

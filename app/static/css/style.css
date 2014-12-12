@@ -354,21 +354,21 @@ text-align: center;
 	border-top: 15px solid transparent;
 	border-bottom: 15px solid transparent; 
 	position: absolute;
-	border-right:15px solid rgb(82, 82, 82)	; 
+	border-right:15px solid rgb(82,82,82); 
 }
 .rect
 {
 	width:45px;
 	height: 25px;
 	position: absolute;
-	background: rgb(82, 82, 82);
+	background: rgb(82,82,82);
 margin-left: 15px;
 border-radius: 0px 2px 2px 0px;
 
 }
 .rect-text
 {
-	font-weight: bolder;
+font-weight: bolder;
 position: relative;
 margin-left: -2px;
 font-size: small;
@@ -376,8 +376,8 @@ font-size: small;
 #back
 {
 	position: relative;
-	padding: 12px;
 	cursor: pointer;
+	padding: 15px;
 }
 #back-main
 {
@@ -462,3 +462,137 @@ font-weight: bold;
 font-family:'Georgia', Times New Roman, Times, serif
 
 }
+
+.content {
+		width: 83%;
+		margin: 0px auto;
+		padding: 20px;
+	}
+	.content h1 {
+		font-weight: 400;
+		text-transform: uppercase;
+		margin: 0;
+	}
+	.content h2 {
+		font-weight: bolder;
+		text-transform: uppercase;
+		color: #fff;
+		margin: 0 0 20px 75px;
+		font-size: 17px;
+	}
+	.content p {
+		font-size: 1em;
+		font-weight: 300;
+		line-height: 1.5em;
+		margin: 0 0 20px;
+	}
+	.content p:last-child {
+		margin: 0;
+	}
+	.content a.button {
+		display: inline-block;
+		padding: 10px 20px;
+		background: #ff0;
+		color: #000;
+		text-decoration: none;
+	}
+	.content a.button:hover {
+		background: #000;
+		color: #ff0;
+	}
+	.content.title {
+		position: relative;
+		background: none;
+		border: 2px dashed #333;
+	}
+	.content.title h1 span.demo {
+		display: inline-block;
+		font-size: .5em;
+		padding: 5px 10px;
+		background: #000;
+		color: #fff;
+		vertical-align: top;
+		margin: 7px 0 0;
+	}
+	.content.title .back-to-article {
+		position: absolute;
+		bottom: -20px;
+		left: 20px;
+	}
+	.content.title .back-to-article a {
+		padding: 10px 20px;
+		background: #f60;
+		color: #fff;
+		text-decoration: none;
+	}
+	.content.title .back-to-article a:hover {
+		background: #f90;
+	}
+	.content.title .back-to-article a i {
+		margin-left: 5px;
+	}
+	.content.white {
+		background-image: linear-gradient(to bottom, #343434, #4F4F4F);
+		box-shadow: 0 0 10px #999;
+	}
+	.content.black {
+		background: #000;
+	}
+	.content.black p {
+		color: #999;
+	}
+	.content.black p a {
+		color: #08c;
+	}
+	
+	.accordion-container {
+		width: 100%;
+		margin: 0 0 20px;
+		clear: both;
+	}
+	.accordion-toggle {
+		position: relative;
+		display: block;
+		padding: 20px;
+		font-size: 14px;
+		font-weight: bolder;
+		background: #999;
+		color: #fff;
+		text-decoration: none;
+	}
+	.accordion-toggle.open {
+		background: #333;
+		color: #fff;
+	}
+	.accordion-toggle:hover {
+		background: #666;
+	}
+	.accordion-toggle span.toggle-icon {
+		position: absolute;
+		top: 9px;
+		right: 20px;
+		font-size: 1.5em;
+	}
+	.accordion-content {
+		display: none;
+		padding: 15px;
+		overflow: auto;
+	}
+	.accordion-content img {
+		display: block;
+		float: left;
+		margin: 0 15px 10px 0;
+		max-width: 100%;
+		height: auto;
+	}
+	
+	/* media query for mobile */
+	@media (max-width: 767px) {
+		.content {
+			width: auto;
+		}
+		.accordion-content {
+			padding: 10px 0;
+			overflow: inherit;
+		}
+	}

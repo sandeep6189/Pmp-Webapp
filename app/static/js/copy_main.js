@@ -1,6 +1,27 @@
                 $( document ).ready(function() {
 
                       
+                      $(document).delegate('.accordion-toggle','click', function(event){
+                            event.preventDefault();
+                            // create accordion variables
+                            var accordion = $(this);
+                            var accordionContent = accordion.next('.accordion-content');
+                            var accordionToggleIcon = $(this).children('.toggle-icon');
+                            
+                            // toggle accordion link open class
+                            accordion.toggleClass("open");
+                            // toggle accordion content
+                            accordionContent.slideToggle(250);
+                            
+                            // change plus/minus icon
+                            if (accordion.hasClass("open")) {
+                              accordionToggleIcon.html("<i class='fa fa-minus-circle'></i>");
+                            } else {
+                              accordionToggleIcon.html("<i class='fa fa-plus-circle'></i>");
+                            }
+                          });
+
+
                       //make a call to search.php onchange
                       $('#query').keypress(function(){
 
@@ -173,7 +194,7 @@
                         //take the current dump of the files and store it in a global variable 
                         dump_screen = $('#app_drop').html();
                         //now we can replace it with info screen 
-                        $.get('/info.php',function(data){
+                        $.get('/info',function(data){
 
                             $('#app_drop').html(data);
 

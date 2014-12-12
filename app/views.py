@@ -146,12 +146,12 @@ def add_preferences():
 	if request.method=="GET":
 		user = g.user.nickname
 		email = g.user.email
-		return render_template('preferences.html',user=user,email=email)
+		image = g.user.image
+		return render_template('preferences.html',user=user,email=email,image=image)
 	elif request.method=="POST":
 		userName = request.form["user"]
 		userEmail = request.form["email"]
 		bundleId = request.form["bundleId[0][]"]
-		
 		aa = User_Preferences.query.filter_by(email=userEmail).first()
 		if aa:
 			b = aa.preferences
@@ -176,9 +176,34 @@ def get_preferences():
 		user = json.loads(request.data)
 		userName = user["user"]
 		email = user["email"]
-		return "success"
-		
+		user_pref_obj = User_Preferences.query.filter_by(email=email).first()
+		current_preferences = user_pref_obj.preferences
+		if(current_preferences):
+			current = current_preferences.split(";")
+			print current
+			return get_data_from_id(current)
+		return ""		
 
+@app.route('/remove_preferences',methods=['POST','GET'])
+@login_required
+def remove_preferences():
+	if request.method == "POST":
+		userName = request.form["user"]
+		userEmail = request.form["email"]
+		bundle_id = request.form["bundleId[0][]"]
+		user_pref_obj = User_Preferences.query.filter_by(email=userEmail).first()
+		current_preferences = user_pref_obj.preferences
+		print current_preferences
+		if(current_preferences):
+			current = current_preferences.split(";")
+			current.remove(bundle_id)
+			pref = ";".join(current)
+			print pref
+			#update the user preference table
+			user_pref_obj.preferences = pref
+			db.session.commit()
+			return "1"
+		return "0"
 @app.route('/logout')
 def logout():
     logout_user()
@@ -247,6 +272,25 @@ def categories():
 			lis.append(row_data)
 		return json.dumps(lis)
 
+def get_data_from_id(data):
+	cursor = mysql.connect().cursor()
+	lis = []
+	for row in data:
+		bundle_id = row
+		cursor.execute("SELECT `app_desc`.`bundle_id`,`app_desc`.`app_name`,`app_desc`.`version`,`app_desc`.`genre`,`images`.`icon`, `images`.`screenshot`, `rating`.`avg_rating`, `rating`.`rating_count`,`bundle`.`track_url` FROM app_desc INNER JOIN images ON app_desc.bundle_id = images.bundle_id INNER JOIN rating ON images.bundle_id = rating.bundle_id INNER JOIN bundle ON rating.bundle_id = bundle.bundle_id WHERE app_desc.bundle_id =  '"+bundle_id+"' LIMIT 10")
+		cur_data = cursor.fetchone()
+		dic = {}
+		dic["bundle_id"] = cur_data[0]
+		dic["app_name"] = cur_data[1]
+		dic["version"] = cur_data[2]
+		dic["genre"] = cur_data[3]
+		dic["icon"] = cur_data[4]
+		dic["avg_rating"] = cur_data[6]
+		dic["track_url"] = cur_data[8]
+		lis.append(dic)
+	return json.dumps(lis)
+
+
 @app.route("/search",methods=['POST'])
 def search():
 	if request.method == "POST":
@@ -255,26 +299,65 @@ def search():
 		cursor = mysql.connect().cursor()
 		cursor.execute("SELECT DISTINCT `bundle_id` FROM `app_desc` WHERE `app_name` LIKE '%"+query+"%' LIMIT 10")
 		data = cursor.fetchall()
-		#cursor.close()
-		
 		lis = []
-		
-		print data
 		for row in data:
-			bundle_id = row[0]
-			cursor.execute("SELECT `app_desc`.`bundle_id`,`app_desc`.`app_name`,`app_desc`.`version`,`app_desc`.`genre`,`images`.`icon`, `images`.`screenshot`, `rating`.`avg_rating`, `rating`.`rating_count`,`bundle`.`track_url` FROM app_desc INNER JOIN images ON app_desc.bundle_id = images.bundle_id INNER JOIN rating ON images.bundle_id = rating.bundle_id INNER JOIN bundle ON rating.bundle_id = bundle.bundle_id WHERE app_desc.bundle_id =  '"+bundle_id+"' LIMIT 10")
-			cur_data = cursor.fetchone()
-			#lis.append(cur_data)
-			dic = {}
-			dic["bundle_id"] = cur_data[0]
-			dic["app_name"] = cur_data[1]
-			dic["version"] = cur_data[2]
-			dic["genre"] = cur_data[3]
-			dic["icon"] = cur_data[4]
-			dic["avg_rating"] = cur_data[6]
-			dic["track_url"] = cur_data[8]
-			lis.append(dic)
-		return json.dumps(lis)
+			lis.append(row[0])
+		return get_data_from_id(lis)
+
+@app.route("/info",methods=['POST','GET'])
+def info():
+	data = '''<div class="content white">
+	<div id='back' style='padding:0'>
+			<div class='arrow-left'>
+			</div>
+			<div class='rect' style='padding-top:5px;'>
+			<span class='rect-text' style='margin-left:2px'>Back</span>
+			</div>
+		</div>
+	<h2>Info</h2>
+	<div class="accordion-container">
+		<a href="#" class="accordion-toggle">Why Pmp ? <span class="toggle-icon"><i class="fa fa-plus-circle"></i></span></a>
+		<div class="accordion-content">
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+		</div>
+		<!--/.accordion-content-->
+	</div>
+	<!--/.accordion-container-->
+	<div class="accordion-container">
+		<a href="#" class="accordion-toggle">FAQ <span class="toggle-icon"><i class="fa fa-plus-circle"></i></span></a>
+		<div class="accordion-content">
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+		</div>
+		<!--/.accordion-content-->
+	</div>
+	<!--/.accordion-container-->
+	<div class="accordion-container">
+		<a href="#" class="accordion-toggle">Privacy Policy <span class="toggle-icon"><i class="fa fa-plus-circle"></i></span></a>
+		<div class="accordion-content">
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+		</div>
+		<!--/.accordion-content-->
+	</div>
+	<!--/.accordion-container-->
+	<div class="accordion-container">
+		<a href="#" class="accordion-toggle">Terms of Service <span class="toggle-icon"><i class="fa fa-plus-circle"></i></span></a>
+		<div class="accordion-content">
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+		</div>
+		<!--/.accordion-content-->
+	</div>
+	<!--/.accordion-container-->
+	<div class="accordion-container">
+		<a href="#" class="accordion-toggle">Contact Us <span class="toggle-icon"><i class="fa fa-plus-circle"></i></span></a>
+		<div class="accordion-content">
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+		</div>
+		<!--/.accordion-content-->
+	</div>
+	<!--/.accordion-container-->
+	</div>'''
+	return data
+
 
 @app.route("/app_details",methods=['POST'])
 def app_details():

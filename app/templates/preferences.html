@@ -24,6 +24,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
     <script src="{{ url_for('static', filename='js/touchslider.js') }}"></script>
     <script src="{{ url_for('static', filename='js/preferences.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.jscrollpane.min.js') }}"></script>
 
   
   <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
@@ -37,7 +38,7 @@
                  <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                </a> 
-            <a class="brand" href="index.html"><img src="{{url_for('static',filename='img/user.jpg') }}"/></a>
+            <a class="brand" href="index.html"><img src="{{ image }}"/></a>
             <ul class="nav nav-collapse pull-right">
               <li style="margin-right: 0px;"><a href="/"><i class="icon-user"></i> Profile</a></li>
                <li style="margin-left: 10px"><a href="#" class="active" ><i class="icon-paper-plane"></i> Add Preferences </a></li>
@@ -63,15 +64,27 @@
 
       <div class="span4">
         <h3 style="color:rgb(12, 197, 127);font-weight:bold">Current Preferred Apps</h3>
-        <div id="preferred_apps" ng-controller="AppController as app">
-          
+        <div id="preferred_apps" ng-controller="AppController as apps">
+            <ol style="list-style:none"> 
+                <li class="stbody" ng-repeat="app in prefered">
+                    <div class="stimg">
+                        <img ng-src="[[app.icon]]" width="60" height="60" />
+                    </div> 
+                    <div class="sttext">
+                        [[app.app_name]]
+                        <div class="sttime">Avg.Rating [[app.avg_rating]]</div>
+                        <div class="add_app pull-right" style="margin-top:-40px"><button class="btn" ng-click="removePreference([[app.bundle_id]])">Remove</button></div> 
+                    </div> 
+                </li> 
+
+            </ol>
         </div>
       </div>
       <div class="span4">
         <h3 style="color:rgb(12, 197, 127);font-weight:bold">Add Apps</h3>
-          <div ng-controller="SearchPreferenceController">
+          <div ng-controller="SearchPreferenceController" id="cus_scroll" style="overflow:auto;overflow-x:hidden;height:400px;width:400px"> 
              <input type="text" class="form-control" placeholder="Search" style="width:100%;height:20px;" name="query" ng-model="query" id="query"> 
-             <ol style="list-style:none"> 
+             <ol style="list-style:none;margin-left:10px" > 
                 <li class="stbody" ng-repeat="app in apps">
                     <div class="stimg">
                         <img ng-src="[[app.icon]]" width="60" height="60" />
