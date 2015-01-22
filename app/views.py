@@ -8,7 +8,7 @@ import json,datetime,time
 import MySQLdb
 from user_agents import parse
 from forms import LoginForm
-from app import lm,oid,db
+from app import lm,db
 from flask_googlelogin import GoogleLogin
 from flask.ext.social import Social
 from flask.ext.social.datastore import SQLAlchemyConnectionDatastore
@@ -72,19 +72,19 @@ def hello_world():
 
 @app.route("/")
 @app.route('/login', methods=['GET', 'POST'])
-@oid.loginhandler
 def login():
     if g.user is not None and g.user.is_authenticated():
     	print g.user
         return redirect("/index")
     form = LoginForm()
+    '''
     if form.validate_on_submit():
         session['remember_me'] = form.remember_me.data
         return oid.try_login(form.openid.data, ask_for=['nickname', 'email','image','gender','country','phone','dob','timezone'])
+    '''
     return render_template('login.html',
                            title='Sign In',
-                           form=form,
-                           providers=app.config['OPENID_PROVIDERS'])
+                           form=form)
 
 def dump(obj):
   for attr in dir(obj):
@@ -118,7 +118,6 @@ def oauth_callback(provider):
     return redirect('/index')
 
 
-@oid.after_login
 def after_login(resp):
     if resp.email is None or resp.email == "":
     	flash('Invalid login. Please try again.')
