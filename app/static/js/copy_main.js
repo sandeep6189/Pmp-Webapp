@@ -249,9 +249,7 @@
                         //alert(div_id);
                          $.post('/app_details',{img_src:this.src,url:this.alt,id:this.id,div_id:div_id},function(data){
                               
-                    var form = eval('('+data+')');
-                              
-                              
+                              var form = eval('('+data+')');  
                               var html_str = "<div style='width:100%;color:#fff;margin:0px'><div class='mobile-row2' style='width:100%;height:80px;text-align:center;position:relative'>"+
         "<h4 class='info-pmp'>"+
           "Inside App"+
@@ -317,8 +315,6 @@
     "</div>";
     $('#app_drop').html(html_str);
                          });
-
-                                                 $('div#app_drop').scrollTop(0);
 
                       });
 

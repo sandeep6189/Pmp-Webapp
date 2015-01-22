@@ -25,8 +25,9 @@
                         email: userEmail                        
                     }
                 }).success(function(data){
-                	$scope.prefered = data;
-                	console.log($scope.prefered);
+
+                	$scope.prefered = data.entries;
+                	//console.log($scope.prefered);
                 });
         $scope.removePreference = function(bundleId)
         	{
@@ -37,13 +38,27 @@
         			$.post("/remove_preferences",data,function(response){
         					if(response==1)
         					{
-        						alert("App removed from the list");
+        						location.reload();
         					}
         					else
         						alert("Try Again !");
         			});
         		}
         	};
+        $scope.DisplayData = function(bundleId)
+            {
+                var id = bundleId[0][0];
+                //console.log(id);
+                //var data = $("#"+id).html();
+                $("#app_info_area li").each(function(index){
+                    $(this).children("div").hide();
+                });
+                $("#"+id).show();
+                //console.log(data);
+                //var html = $.parseHTML(data);               
+                //$("#app_info_area").html(html);
+            };
+        
 
 	}]);
 
@@ -53,9 +68,10 @@
 		var userEmail = $('#current_user_email').html();
 		$('#query').keypress(function(){
                     var query = $("#query").val();
-                    $.post("/search",{query:query}, function( data ) {
-                    	$scope.apps = eval('('+data+')');
-                    	//console.log($scope.apps);
+                    $.post("/search_new",{query:query}, function( data ) {
+                        var aq = eval('('+data+')');
+                        $scope.apps = aq.entries;
+                        //console.log($scope.apps);
                     }); 
              });
 
@@ -69,7 +85,7 @@
 					//make a payload
 					var data = {user:userName,email:userEmail,bundleId:bundleId};
 					$.post("/add_preferences",data,function(response){
-
+                        location.reload();
 					});
 				}
 			};

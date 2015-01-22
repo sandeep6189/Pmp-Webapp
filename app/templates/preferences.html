@@ -21,12 +21,11 @@
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/touchslider.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.mobile.custom.theme.min.css') }}">
     <script src="{{ url_for('static', filename='js/jquery-1.10.2.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
     <script src="{{ url_for('static', filename='js/touchslider.js') }}"></script>
     <script src="{{ url_for('static', filename='js/preferences.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.jscrollpane.min.js') }}"></script>
-
-  
   <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
     </head>
     <body style="overflow-y:hidden">
@@ -38,7 +37,7 @@
                  <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                </a> 
-            <a class="brand" href="index.html"><img src="{{ image }}"/></a>
+            <a class="brand" href="/index"><img src="{{ image }}"/></a>
             <ul class="nav nav-collapse pull-right">
               <li style="margin-right: 0px;"><a href="/"><i class="icon-user"></i> Profile</a></li>
                <li style="margin-left: 10px"><a href="#" class="active" ><i class="icon-paper-plane"></i> Add Preferences </a></li>
@@ -61,47 +60,85 @@
     </div>
     <!--Profile container-->
     <div class="container profile" style="width:100%;">
-
-      <div class="span4">
+      <div class="span8">
         <h3 style="color:rgb(12, 197, 127);font-weight:bold">Current Preferred Apps</h3>
         <div id="preferred_apps" ng-controller="AppController as apps">
-            <ol style="list-style:none"> 
-                <li class="stbody" ng-repeat="app in prefered">
-                    <div class="stimg">
-                        <img ng-src="[[app.icon]]" width="60" height="60" />
-                    </div> 
+          <div class="row">  
+            <ol style="list-style:none;overflow:auto;height:400px;overflow-x:hidden;" class="span4" style=""> 
+                <li class="stbody" data-ng-repeat="app in prefered">
+                    <a href="" class="img_click"  ng-click="DisplayData([[$index]])">
+                      <div class="stimg">
+                            <img ng-src="[[app.icon]]" width="60" height="60" />    
+                      </div>
+                    </a> 
                     <div class="sttext">
-                        [[app.app_name]]
-                        <div class="sttime">Avg.Rating [[app.avg_rating]]</div>
-                        <div class="add_app pull-right" style="margin-top:-40px"><button class="btn" ng-click="removePreference([[app.bundle_id]])">Remove</button></div> 
+                        [[app.name]]
+                        <div class="sttime">Version [[app.version]]</div>
+                        <div class="add_app pull-right" style="margin-top:-40px"><button class="btn" ng-click="removePreference([[app.bundleid]])">Remove</button></div> 
                     </div> 
                 </li> 
 
             </ol>
+            <ol style="list-style:none;" class="span4" id="app_info_area" style="">
+              <li data-ng-repeat="app in prefered">
+                <div id="[[$index]]" style="display:none">
+                      <div role="tabpanel">
+                          <!-- Nav tabs -->
+                          <ul class="nav nav-tabs pmp_data" role="tablist"  style="margin-left:23px">
+                            <li role="presentation" class="active"><a href="#[[$index]]-privacy" aria-controls="[[$index]]-privacy" role="tab" data-toggle="tab" style="color:rgb(12, 197, 127)">Privacy</a></li>
+                            <li role="presentation"><a href="#[[$index]]-recommend" aria-controls="[[$index]]-recommend" role="tab" data-toggle="tab" style="color:rgb(12, 197, 127)">Recommend</a></li>
+                          </ul>
+
+                          <!-- Tab panes -->
+                          <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="[[$index]]-privacy" aria-labelledby='[[$index]]-privacy-tab' style="overflow:auto;height:350px;overflow-x:hidden;">
+                                <ul class="list-group" style="color:#444">
+                                  <li class="list-group-item" data-ng-repeat='pri in app.privacy'>
+                                    <p class="list-group-item-text" >[[pri]]</p> 
+                                  </li>
+                                </ul>    
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="[[$index]]-recommend" aria-labelledby='[[$index]]-recommend-tab' style="overflow:auto;height:350px;overflow-x:hidden;">
+                                <ul class="list-group" style="color:#444">
+                                  <li class="list-group-item" data-ng-repeat='rec in app.recommended_protect'>
+                                    <p class="list-group-item-text" >[[rec.field_name]]<span class="pull-right" style="font-weight:bolder;font-size:14px;">[[rec.value]]</span></p> 
+                                  </li>
+                                </ul>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+              </li>
+            </ol>
+            </div>
         </div>
       </div>
+       <!--div class="span4" >
+          <h3 style="color:rgb(12, 197, 127);font-weight:bold;margin-left:30px">App Info</h3>
+          <div  id="app_info_area" style="">
+                          
+          </div>
+      </div-->
       <div class="span4">
         <h3 style="color:rgb(12, 197, 127);font-weight:bold">Add Apps</h3>
-          <div ng-controller="SearchPreferenceController" id="cus_scroll" style="overflow:auto;overflow-x:hidden;height:400px;width:400px"> 
-             <input type="text" class="form-control" placeholder="Search" style="width:100%;height:20px;" name="query" ng-model="query" id="query"> 
+          <div ng-controller="SearchPreferenceController" id="cus_scroll" style="overflow:auto;overflow-x:hidden;height:400px;width:400px">
+              <input type="text" class="form-control" placeholder="Search" style="width:100%;height:20px;" name="query" ng-model="query" id="query"> 
              <ol style="list-style:none;margin-left:10px" > 
                 <li class="stbody" ng-repeat="app in apps">
                     <div class="stimg">
                         <img ng-src="[[app.icon]]" width="60" height="60" />
                     </div> 
                     <div class="sttext">
-                        [[app.app_name]]
-                        <div class="sttime">Avg.Rating [[app.avg_rating]]</div>
-                        <div class="add_app pull-right" style="margin-top:-40px"><button class="btn" ng-click="addPreference([[app.bundle_id]])">Add</button></div> 
+                        [[app.name]]
+                        <div class="sttime">Version [[app.version]]</div>
+                        <div class="add_app pull-right" style="margin-top:-40px"><button class="btn" ng-click="addPreference([[app.bundleid]])">Add</button></div> 
                     </div> 
                 </li> 
 
             </ol>
           </div>
-      </div>     
-      <div class="span4">
-          
       </div>
+
    </div>
     <!--END: Profile container-->
     <!-- Social Icons -->
@@ -114,6 +151,13 @@
         <p class="pull-right" style="margin-top:10px"><a href="#myModal" role="button" data-toggle="modal"> <i class="icon-mail"></i> CONTACT</a></p>
       </div>
     </div>
-    
+    <script type="text/javascript">
+    $(document).ready(function(){
+      $('.pmp_data a').click(function (e) {
+          e.preventDefault()
+        $(this).tab('show')
+        });
+    });
+    </script>
     </body>
   </html>

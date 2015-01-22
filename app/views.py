@@ -180,8 +180,8 @@ def get_preferences():
 		current_preferences = user_pref_obj.preferences
 		if(current_preferences):
 			current = current_preferences.split(";")
-			print current
-			return get_data_from_id(current)
+			#print current
+			return get_data_from_id_2(current)
 		return ""		
 
 @app.route('/remove_preferences',methods=['POST','GET'])
@@ -193,21 +193,37 @@ def remove_preferences():
 		bundle_id = request.form["bundleId[0][]"]
 		user_pref_obj = User_Preferences.query.filter_by(email=userEmail).first()
 		current_preferences = user_pref_obj.preferences
-		print current_preferences
+		#print current_preferences
 		if(current_preferences):
 			current = current_preferences.split(";")
 			current.remove(bundle_id)
 			pref = ";".join(current)
-			print pref
+			#print pref
 			#update the user preference table
 			user_pref_obj.preferences = pref
 			db.session.commit()
 			return "1"
 		return "0"
+
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect('/index')
+
+
+@app.route("/info_apps",methods=['GET','POST'])
+def info_apps():
+	if request.method == "POST":
+		id_app = request.form["bundle_id[0][]"]
+		cursor = mysql.connect().cursor()
+		cursor.execute("SELECT * FROM `app_desc` WHERE `bundle_id`="+id_app+"  LIMIT 0 , 1")
+		data = cursor.fetchone()
+		cursor.close()
+		lis = {}
+		lis["version"] = data[2]
+		lis["genre"] = data[4]
+		lis["description"] = data[3]
+		return json.dumps(lis)
 
 
 
@@ -224,7 +240,7 @@ def top_free_apps():
 			row_data = {}
 			row_data["version"] = row[3]
 			row_data["genre"] = row[5]
-			row_data["app_name"] = row[4]
+			row_data["app_name"] = row[2]
 			row_data["icon"] = row[7]
 			row_data["track_url"] = row[6]
 			row_data["avg_rating"] = row[10]
@@ -244,7 +260,7 @@ def top_paid_apps():
 			row_data = {}
 			row_data["version"] = row[3]
 			row_data["genre"] = row[5]
-			row_data["app_name"] = row[4]
+			row_data["app_name"] = row[2]
 			row_data["icon"] = row[7]
 			row_data["track_url"] = row[6]
 			row_data["avg_rating"] = row[10]
@@ -270,7 +286,7 @@ def categories():
 			row_data = {}
 			row_data["version"] = row[3]
 			row_data["genre"] = row[5]
-			row_data["app_name"] = row[4]
+			row_data["app_name"] = row[2]
 			row_data["icon"] = row[7]
 			row_data["track_url"] = row[6]
 			row_data["avg_rating"] = row[10]
@@ -310,6 +326,77 @@ def search():
 		for row in data:
 			lis.append(row[0])
 		return get_data_from_id(lis)
+
+
+@app.route("/search_new",methods=['POST'])
+def search_new():
+	if request.method == "POST":
+		app.config['MYSQL_DATABASE_DB'] = 'pmp'
+		query = request.form['query']
+		#print query
+		cursor = mysql.connect().cursor()
+		cursor.execute("SELECT DISTINCT `bundleid` FROM `recommend` WHERE `name` LIKE '%"+query+"%' LIMIT 10")
+		data = cursor.fetchall()
+		lis = []
+		for row in data:
+			lis.append(row[0])
+		return get_data_from_id_2(lis)
+
+def get_data_from_id_2(data):
+	cursor = mysql.connect().cursor()
+	#print cursor.description
+	lis = []
+	for row in data:
+		bundle_id = row
+		cursor.execute("SELECT * FROM `recommend` WHERE `bundleid` = '"+bundle_id+"' LIMIT 10")
+		field_names = [i[0] for i in cursor.description]
+		indices = []
+		#get accessed fields
+		for i in range(0,len(field_names)):
+			if "accessed" in field_names[i]:
+				indices.append(i)
+		#get recommended fields
+		indices_recommend = []
+		for i in range(0,len(field_names)):
+			if "recommend" in field_names[i]:
+				indices_recommend.append(i)
+
+		cur_data = cursor.fetchone()
+		privacy_data_accessed = []
+		recommended_protect = []
+		dic = {}
+
+		if cur_data !=None:
+			dic['name'] = cur_data[1]
+			dic['version'] = cur_data[2]
+			dic['bundleid'] = cur_data[0]
+			for i in indices:
+				if cur_data[i]>=1:
+					privacy_data_accessed.append(textify(field_names[i]))
+			for i in indices_recommend:
+				if cur_data[i]=="0":
+					recommended_protect.append({"field_name":textify_recommend(field_names[i]),"value":"No"})
+				elif cur_data[i]=="1":
+					recommended_protect.append({"field_name":textify_recommend(field_names[i]),"value":"Yes"})
+			dic['privacy'] = privacy_data_accessed
+			dic['recommended_protect'] = recommended_protect
+			#print recommended_protect
+			lis.append(dic)
+	dic2 = {}
+	dic2["entries"]=lis
+	return json.dumps(dic2)
+
+
+def textify(field_name):
+	st = field_name.split("_")
+	st[0] = st[0].title()
+	return " ".join(st)
+
+def textify_recommend(field_name):
+	st = field_name.split("_")[1:]
+	#st = st[1:]
+	st[0] = st[0].title()
+	return " ".join(st)	
 
 @app.route("/info",methods=['POST','GET'])
 def info():
