@@ -20,6 +20,7 @@ from oauth import OAuthSignIn
 #login_manager = LoginManager()
 #login_manager.init_app(app)
 #configure the database
+#app.config["APPLICATION_ROOT"]= "/pmp"
 
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -60,7 +61,9 @@ def before_request():
 
 @app.route("/index")
 @login_required
-def hello_world():
+def index():
+	#if request.url[-1] != '/':
+        #	return redirect(request.url + '/')
 	ua = request.headers.get('User-Agent')
 	user_agent = parse(ua)
 	if user_agent.is_pc:
@@ -73,9 +76,11 @@ def hello_world():
 @app.route("/")
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.url[-1] != '/':
+        return redirect(request.url + '/')
     if g.user is not None and g.user.is_authenticated():
     	print g.user
-        return redirect("/index")
+        return redirect(url_for('index'))
     form = LoginForm()
     '''
     if form.validate_on_submit():
@@ -94,7 +99,7 @@ def dump(obj):
 @app.route('/authorize/<provider>')
 def oauth_authorize(provider):
     if not current_user.is_anonymous():
-        return redirect('/index')
+        return redirect(url_for('index'))
     oauth = OAuthSignIn.get_provider(provider)
     return oauth.authorize()
 
@@ -102,20 +107,20 @@ def oauth_authorize(provider):
 @app.route('/callback/<provider>')
 def oauth_callback(provider):
     if not current_user.is_anonymous():
-        return redirect('/index')
+        return redirect(url_for('index'))
     oauth = OAuthSignIn.get_provider(provider)
     social_id, username, email,gender,timezone,image,locale = oauth.callback()
     #print image
     if social_id is None:
         flash('Authentication failed.')
-        return redirect('/index')
+        return redirect(url_for('index'))
     user = User.query.filter_by(social_id=social_id).first()
     if not user:
         user = User(social_id=social_id, nickname=username, email=email,gender=gender,timezone=timezone,image=image,country=locale)
         db.session.add(user)
         db.session.commit()
     login_user(user, True)
-    return redirect('/index')
+    return redirect(url_for('index'))
 
 
 def after_login(resp):
@@ -207,7 +212,7 @@ def remove_preferences():
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect('/index')
+    return redirect(url_for('index'))
 
 
 @app.route("/info_apps",methods=['GET','POST'])
