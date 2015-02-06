@@ -14,7 +14,9 @@ from flask.ext.social import Social
 from flask.ext.social.datastore import SQLAlchemyConnectionDatastore
 from flask.ext.security import Security , SQLAlchemyUserDatastore
 from oauth import OAuthSignIn
+from flask_util_js import FlaskUtilJs
 
+fujs = FlaskUtilJs(app)
 #app = Flask(__name__)
 
 #login_manager = LoginManager()

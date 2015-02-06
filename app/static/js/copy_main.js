@@ -69,7 +69,7 @@
 
                      // alert($(window).width()+","+$(window).height());
 
-                    $.get('/top_free_apps',function(data){
+                    $.get(flask_util.url_for('top_free_apps',{}),function(data){
                       localStorage.setItem("free_apps",data);
                       var top_apps = eval('('+data+')');
 
