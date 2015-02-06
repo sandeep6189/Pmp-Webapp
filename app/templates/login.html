@@ -33,7 +33,7 @@
                  <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                </a> 
-            <a class="brand" href="index.php"><img src="{{url_for('static',filename='img/user.jpg') }}" /></a>
+            <a class="brand" href="{{ url_for('index') }}"><img src="{{url_for('static',filename='img/user.jpg') }}" /></a>
             <ul class="nav nav-collapse pull-right">
               <!--li style="margin-right: 0px;"><a href="index" ><i class="icon-user"></i> Profile</a></li-->
               <li style="margin-left: 10px;"><a href="#" class="active"><i class="icon-paper-plane"></i> Login</a></li>
@@ -72,26 +72,7 @@
             <div>
                 
             </div>
-            <div class="form-box">
-                <div>
-                    <form action="/login" method="post" name="login">
-                        {{ form.hidden_tag() }}
-                        <p>
-                            Please enter your OpenID, or select one of the providers below:<br>
-                            {{ form.openid(size=80) }}
-                            {% for error in form.openid.errors %}
-                              <span style="color: red;">[{{error}}]</span>
-                            {% endfor %}<br>
-                            |{% for pr in providers %}
-                              <a href="javascript:set_openid('{{ pr.url }}', '{{ pr.name }}');">{{ pr.name }}</a> |
-                            {% endfor %}
-                        </p>
-                        <p style="color:#222;">{{ form.remember_me }} Remember Me</p>
-                        <p><input type="submit" value="Sign In" class="btn btn-info btn-block" name='login'></p>
-                    </form>
-
-            </div>
-        </div>
+           
 
       </div>
       <div class="span4"></div>

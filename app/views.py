@@ -14,9 +14,9 @@ from flask.ext.social import Social
 from flask.ext.social.datastore import SQLAlchemyConnectionDatastore
 from flask.ext.security import Security , SQLAlchemyUserDatastore
 from oauth import OAuthSignIn
-from flask_util_js import FlaskUtilJs
+#from flask_util_js import FlaskUtilJs
 
-fujs = FlaskUtilJs(app)
+#fujs = FlaskUtilJs(app)
 #app = Flask(__name__)
 
 #login_manager = LoginManager()
@@ -60,12 +60,23 @@ def load_user(id):
 def before_request():
     g.user = current_user
 
+@app.route("/")
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if g.user is not None and g.user.is_authenticated():
+        return redirect(url_for('index'))
+    '''
+    if form.validate_on_submit():
+        session['remember_me'] = form.remember_me.data
+        return oid.try_login(form.openid.data, ask_for=['nickname', 'email','image','gender','country','phone','dob','timezone'])
+    '''
+    return render_template('login.html',
+                           title='Sign In')
 
-@app.route("/index")
+
+@app.route("/index", methods=['GET'])
 @login_required
 def index():
-	#if request.url[-1] != '/':
-        #	return redirect(request.url + '/')
 	ua = request.headers.get('User-Agent')
 	user_agent = parse(ua)
 	if user_agent.is_pc:
@@ -75,23 +86,6 @@ def index():
 	elif user_agent.is_mobile:
 		return render_template('index-mobile.html')
 
-@app.route("/")
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.url[-1] != '/':
-        return redirect(request.url + '/')
-    if g.user is not None and g.user.is_authenticated():
-    	print g.user
-        return redirect(url_for('index'))
-    form = LoginForm()
-    '''
-    if form.validate_on_submit():
-        session['remember_me'] = form.remember_me.data
-        return oid.try_login(form.openid.data, ask_for=['nickname', 'email','image','gender','country','phone','dob','timezone'])
-    '''
-    return render_template('login.html',
-                           title='Sign In',
-                           form=form)
 
 def dump(obj):
   for attr in dir(obj):
@@ -125,26 +119,6 @@ def oauth_callback(provider):
     return redirect(url_for('index'))
 
 
-def after_login(resp):
-    if resp.email is None or resp.email == "":
-    	flash('Invalid login. Please try again.')
-    	return redirect(url_for('login'))
-    dump(resp)
-    user = User.query.filter_by(email=resp.email).first()
-    if user is None:
-        nickname = resp.nickname
-        if nickname is None or nickname == "":
-            nickname = resp.email.split('@')[0]
-        user = User(nickname=nickname, email=resp.email)
-        db.session.add(user)
-        db.session.commit()
-    remember_me = False
-    if 'remember_me' in session:
-        remember_me = session['remember_me']
-        session.pop('remember_me', None)
-    login_user(user, remember=remember_me)
-    return redirect(request.args.get('next') or url_for('index'))
-
 
 @app.route('/add_preferences',methods=['POST','GET'])
 @login_required
@@ -163,14 +137,14 @@ def add_preferences():
 			b = aa.preferences
 			bundleId = bundleId + ";"+b
 		print bundleId
-		db1 = MySQLdb.connect("localhost","root","admin","login_users" )
+		db1 = MySQLdb.connect("localhost","root","admin","pmp" )
 		cursor =db1.cursor()
 		if(aa and aa.email):
 			aa.preferences = bundleId
 			db.session.commit()
 		else:
-			cursor.execute("INSERT INTO  `login_users`.`user__preferences` (`nickname` ,`preferences` ,`last_accessed` ,`last_updated` ,`email`) VALUES ('"+userName+"',  '"+bundleId+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+userEmail+"');")
-			print "INSERT INTO  `login_users`.`user__preferences` (`nickname` ,`preferences` ,`last_accessed` ,`last_updated` ,`email`) VALUES ('"+userName+"',  '"+bundleId+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+userEmail+"');"
+			cursor.execute("INSERT INTO  `pmp`.`user__preferences` (`nickname` ,`preferences` ,`last_accessed` ,`last_updated` ,`email`) VALUES ('"+userName+"',  '"+bundleId+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+userEmail+"');")
+			#print "INSERT INTO  `pmp`.`user__preferences` (`nickname` ,`preferences` ,`last_accessed` ,`last_updated` ,`email`) VALUES ('"+userName+"',  '"+bundleId+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+userEmail+"');"
 			db1.commit()
 		return "Success"			
 
