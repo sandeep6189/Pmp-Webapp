@@ -8,7 +8,7 @@
                         //take the current dump of the files and store it in a global variable 
                         dump_screen = $('#app_drop').html();
                         //now we can replace it with info screen 
-                        $.get(flask_util.url_for('info'),function(data){
+                        $.get('/pmp/info',function(data){
                             $('#app_drop').html(data);
                         });
                     });
@@ -18,7 +18,7 @@
                         //take the current dump of the files and store it in a global variable 
                         dump_screen = $('#app_drop').html();
                         //now we can replace it with info screen 
-                        $.get(flask_util.url_for('info'),function(data){
+                        $.get('/pmp/info',function(data){
                             $('#app_drop').html(data);
                         });
                     });
@@ -36,7 +36,7 @@
                         //now we can give the id , track_url and img source to the next u.i screen
                         var div_id = $(this).closest('div').parents('div').attr('id');
                         //alert(div_id);
-                         $.post(flask_util.url_for('app_details'),{img_src:this.src,url:this.alt,id:this.id,div_id:div_id},function(data){
+                         $.post('/pmp/app_details',{img_src:this.src,url:this.alt,id:this.id,div_id:div_id},function(data){
                               $('#app_drop').html(data);
                              });
                               $('div#app_drop').scrollTop(0);
@@ -47,7 +47,7 @@
                         //now we can give the id , track_url and img source to the next u.i screen
                         var div_id = $(this).closest('div').parents('div').attr('id');
                         //alert(div_id);
-                         $.post(flask_util.url_for('app_details'),{img_src:this.src,url:this.alt,id:this.id},function(data){
+                         $.post('/pmp//app_details',{img_src:this.src,url:this.alt,id:this.id},function(data){
                              
                                       var form = eval('('+data+')');
                               
@@ -139,7 +139,7 @@
                         var panel_data =  $('#search_panel').html();
                         $('#search_panel').html("");
                         var query = $('#mobile_search').val();
-                        $.post(flask_util.url_for('search'),{query:query},function(data){
+                        $.post('/pmp/search',{query:query},function(data){
                             var s = eval('('+data+')');
                             var str = "";
                             for(var i =0;i<s.length;i++)
@@ -157,7 +157,7 @@
                         var panel_data =  $('#search_panel').html();
                         $('#search_panel').html("");
                         var query = $('#mobile_search').val();
-                        $.post(flask_util.url_for('search'),{query:query},function(data){
+                        $.post('/pmp/search',{query:query},function(data){
                             var s = eval('('+data+')');
                             var str = "";
                             for(var i =0;i<s.length;i++)
@@ -174,7 +174,7 @@
                         //now we can give the id , track_url and img source to the next u.i screen
                         //var div_id = $(this).closest('div').parents('div').attr('id');
                         //alert(div_id);
-                         $.post(flask_util.url_for('search_results'),{img_src:this.src,url:this.alt,id:this.id},function(data){
+                         $.post('/pmp/search_results',{img_src:this.src,url:this.alt,id:this.id},function(data){
 
                           
                          }); 
@@ -220,7 +220,7 @@
 
                   function main_page()
                   {
-                  $.get(flask_util.url_for('top_free_apps'),function(data){
+                  $.get('/pmp/top_free_apps',function(data){
                       localStorage.setItem("free_apps",data);
                       var top_apps = eval('('+data+')');
                       //alert(top_apps[0]["app_name"]);
@@ -241,7 +241,7 @@
                          in_row('#slidebar', 16, 8);
 
                     });
-                    $.get(flask_util.url_for('top_paid_apps'),function(data){
+                    $.get('/pmp/top_paid_apps',function(data){
                       localStorage.setItem("paid_apps",data);
                       var top_apps = eval('('+data+')');
                       //alert(top_apps[0]["app_name"]);
@@ -268,7 +268,7 @@
                 $.each(categories,function(index,value)
                 {
                   console.log(index);
-                  $.post(flask_util.url_for('categories'),{category:value},function(data){
+                  $.post('/pmp/categories',{category:value},function(data){
                       localStorage.setItem(c_all[index],data);
                       var top_apps = eval('('+data+')');
                       //alert(top_apps[0]["app_name"]);
