@@ -27,7 +27,7 @@
                       $('#query').keypress(function(){
 
                           var query = $("#query").val();
-                          $.post("/search",{query:query}, function( data ) {
+                          $.post(flask_util.url_for("search"),{query:query}, function( data ) {
 
                             var apps = eval('('+data+')');
                             var names = [];
@@ -106,7 +106,7 @@
                           $('#slidebar').html(str);
                           touchslider.createSlidePanel('#slidebar', 50, 20);
                     });
-                    $.get('/top_paid_apps',function(data){
+                    $.get(flask_util.url_for('top_paid_apps'),function(data){
                       localStorage.setItem("paid_apps",data);
                       var top_apps = eval('('+data+')');
                       //alert(top_apps[0]["app_name"]);
@@ -149,7 +149,7 @@
                 $.each(categories,function(index,value)
                 {
 
-                  $.post('/categories',{category:value},function(data){
+                  $.post(flask_util.url_for('categories'),{category:value},function(data){
                     localStorage.setItem(c_all[index],data);
                       var top_apps = eval('('+data+')');
                       //alert(top_apps[0]["app_name"]);
@@ -199,7 +199,7 @@
                         dump_screen = $('#app_drop').html();
                         stack.push(dump_screen);
                         //now we can replace it with info screen 
-                        $.get('/info',function(data){
+                        $.get(flask_util.url_for('info'),function(data){
 
                             $('#app_drop').html(data);
 
@@ -214,7 +214,7 @@
                         dump_screen = $('#app_drop').html();
                         //now we can replace it with info screen 
                         stack.push(dump_screen);
-                        $.get('/info.php',function(data){
+                        $.get(flask_util.url_for('info.php'),function(data){
 
                             $('#app_drop').html(data);
 
@@ -247,7 +247,7 @@
                         //now we can give the id , track_url and img source to the next u.i screen
                         var div_id = $(this).closest('div').parents('div').attr('id');
                         //alert(div_id);
-                         $.post('/app_details',{img_src:this.src,url:this.alt,id:this.id,div_id:div_id},function(data){
+                         $.post(flask_util.url_for('app_details'),{img_src:this.src,url:this.alt,id:this.id,div_id:div_id},function(data){
                               
                               var form = eval('('+data+')');  
                               var html_str = "<div style='width:100%;color:#fff;margin:0px'><div class='mobile-row2' style='width:100%;height:80px;text-align:center;position:relative'>"+
@@ -325,7 +325,7 @@
                         //now we can give the id , track_url and img source to the next u.i screen
                         var div_id = $(this).closest('div').parents('div').attr('id');
                         //alert(div_id);
-                         $.post('/app_details',{img_src:this.src,url:this.alt,id:this.id,div_id:div_id},function(data){
+                         $.post(flask_util.url_for('app_details'),{img_src:this.src,url:this.alt,id:this.id,div_id:div_id},function(data){
                               $('#app_drop').html(data);
                          });
 
@@ -344,7 +344,7 @@
                         var panel_data =  $('#search_panel').html();
                         $('#search_panel').html("");
                         var query = $('#mobile_search').val();
-                        $.post('/search',{query:query},function(data){
+                        $.post(flask_util.url_for('search'),{query:query},function(data){
                             var s = eval('('+data+')');
                             var str = "";
                             for(var i =0;i<s.length;i++)
@@ -363,7 +363,7 @@
                         //now we can give the id , track_url and img source to the next u.i screen
                         //var div_id = $(this).closest('div').parents('div').attr('id');
                         //alert(div_id);
-                         $.post('/search_results',{img_src:this.src,url:this.alt,id:this.id},function(data){
+                         $.post(flask_util.url_for('search_results'),{img_src:this.src,url:this.alt,id:this.id},function(data){
                               
                               var form = eval('('+data+')');
                               
