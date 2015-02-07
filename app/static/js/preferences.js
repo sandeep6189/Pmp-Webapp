@@ -19,7 +19,7 @@
 		var userEmail = $('#current_user_email').html();
 		$http({
                     method: "post",
-                    url: "/get_preferences",
+                    url: "/pmp/get_preferences",
                     data: {
                         user: userName,
                         email: userEmail                        
@@ -35,7 +35,7 @@
         		if(r==true)
         		{
         			var data = {user:userName,email:userEmail,bundleId:bundleId};
-        			$.post("/remove_preferences",data,function(response){
+        			$.post("/pmp/remove_preferences",data,function(response){
         					if(response==1)
         					{
         						location.reload();
@@ -68,7 +68,7 @@
 		var userEmail = $('#current_user_email').html();
 		$('#query').keypress(function(){
                     var query = $("#query").val();
-                    $.post("/search_new",{query:query}, function( data ) {
+                    $.post("/pmp/search_new",{query:query}, function( data ) {
                         var aq = eval('('+data+')');
                         $scope.apps = aq.entries;
                         //console.log($scope.apps);
@@ -84,7 +84,7 @@
 				{
 					//make a payload
 					var data = {user:userName,email:userEmail,bundleId:bundleId};
-					$.post("/add_preferences",data,function(response){
+					$.post("/pmp/add_preferences",data,function(response){
                         location.reload();
 					});
 				}

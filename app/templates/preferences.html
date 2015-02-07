@@ -3,7 +3,7 @@
     <html lang="en" ng-app='preferences'>
     <head>
     <meta charset="utf-8">
-    <title>PmP For Android</title>
+    <title>Protect My Privacy</title>
     <meta name="description" content="Flat Design Mini Portfolio">
     <meta name="keywords" content="responsive, bootstrap, Privacy, Android, App Scanner">
     <meta name="author" content="Dzyngiri">
@@ -59,7 +59,8 @@
 
     </div>
     <!--Profile container-->
-    <div class="container profile" style="width:100%;">
+  <div class="clearfix">
+    <div class="container profile">
       <div class="span8">
         <h3 style="color:rgb(12, 197, 127);font-weight:bold">Current Preferred Apps</h3>
         <div id="preferred_apps" ng-controller="AppController as apps">
@@ -85,7 +86,7 @@
                       <div role="tabpanel">
                           <!-- Nav tabs -->
                           <ul class="nav nav-tabs pmp_data" role="tablist"  style="margin-left:23px">
-                            <li role="presentation" class="active"><a href="#[[$index]]-privacy" aria-controls="[[$index]]-privacy" role="tab" data-toggle="tab" style="color:rgb(12, 197, 127)">Privacy</a></li>
+                            <li role="presentation" class="active"><a href="#[[$index]]-privacy" aria-controls="[[$index]]-privacy" role="tab" data-toggle="tab" style="color:rgb(12, 197, 127)">Accesses </a></li>
                             <li role="presentation"><a href="#[[$index]]-recommend" aria-controls="[[$index]]-recommend" role="tab" data-toggle="tab" style="color:rgb(12, 197, 127)">Recommend</a></li>
                           </ul>
 
@@ -119,9 +120,9 @@
                           
           </div>
       </div-->
-      <div class="span4">
+      <div class="span3">
         <h3 style="color:rgb(12, 197, 127);font-weight:bold">Add Apps</h3>
-          <div ng-controller="SearchPreferenceController" id="cus_scroll" style="overflow:auto;overflow-x:hidden;height:400px;width:400px">
+          <div ng-controller="SearchPreferenceController" id="cus_scroll" style="overflow:auto;overflow-x:hidden;height:400px;width:320px">
               <input type="text" class="form-control" placeholder="Search" style="width:100%;height:20px;" name="query" ng-model="query" id="query"> 
              <ol style="list-style:none;margin-left:10px" > 
                 <li class="stbody" ng-repeat="app in apps">
@@ -140,6 +141,7 @@
       </div>
 
    </div>
+  </div>
     <!--END: Profile container-->
     <!-- Social Icons -->
     

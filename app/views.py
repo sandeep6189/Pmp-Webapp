@@ -368,7 +368,7 @@ def get_data_from_id_2(data):
 
 
 def textify(field_name):
-	st = field_name.split("_")
+	st = field_name.split("_")[1:]
 	st[0] = st[0].title()
 	return " ".join(st)
 
