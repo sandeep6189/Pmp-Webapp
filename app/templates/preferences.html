@@ -66,8 +66,8 @@
         <div id="preferred_apps" ng-controller="AppController as apps">
           <div class="row">  
             <ol style="list-style:none;overflow:auto;height:400px;overflow-x:hidden;" class="span4" style=""> 
-                <li class="stbody" data-ng-repeat="app in prefered">
-                    <a href="" class="img_click"  ng-click="DisplayData([[$index]])">
+                <li class="stbody" data-ng-repeat="app in prefered"  ng-click="DisplayData([[$index]])" style="cursor:pointer">
+                    <a href="" class="img_click">
                       <div class="stimg">
                             <img ng-src="[[app.icon]]" width="60" height="60" />    
                       </div>
@@ -80,11 +80,12 @@
                 </li> 
 
             </ol>
-            <ol style="list-style:none;" class="span4" id="app_info_area" style="">
+            <ol style="list-style:none;margin-top: -58px;" class="span4" id="app_info_area" style="">
               <li data-ng-repeat="app in prefered">
                 <div id="[[$index]]" style="display:none">
                       <div role="tabpanel">
                           <!-- Nav tabs -->
+                          <h3 style="color:rgb(12, 197, 127);font-weight:bold;margin-left:30px">[[app.name]]</h3>
                           <ul class="nav nav-tabs pmp_data" role="tablist"  style="margin-left:23px">
                             <li role="presentation" class="active"><a href="#[[$index]]-privacy" aria-controls="[[$index]]-privacy" role="tab" data-toggle="tab" style="color:rgb(12, 197, 127)">Accesses </a></li>
                             <li role="presentation"><a href="#[[$index]]-recommend" aria-controls="[[$index]]-recommend" role="tab" data-toggle="tab" style="color:rgb(12, 197, 127)">Recommend</a></li>
@@ -95,7 +96,7 @@
                             <div role="tabpanel" class="tab-pane active" id="[[$index]]-privacy" aria-labelledby='[[$index]]-privacy-tab' style="overflow:auto;height:350px;overflow-x:hidden;">
                                 <ul class="list-group" style="color:#444">
                                   <li class="list-group-item" data-ng-repeat='pri in app.privacy'>
-                                    <p class="list-group-item-text" >[[pri]]</p> 
+                                    <p class="list-group-item-text" >[[pri]] <span class="pull-right"><img src="{{ url_for('static',filename='icons/') }}[[pri]].png" width="30" height="30"></span></p> 
                                   </li>
                                 </ul>    
                             </div>
@@ -150,7 +151,7 @@
     <div class="footer" style="left:0;height:50px">
       <div class="container">
         <p class="pull-left" style="margin-top:10px"><a href="#">Copyright &#169; SynergyLabs</a></p>
-        <p class="pull-right" style="margin-top:10px"><a href="#myModal" role="button" data-toggle="modal"> <i class="icon-mail"></i> CONTACT</a></p>
+        <!--p class="pull-right" style="margin-top:10px"><a href="#myModal" role="button" data-toggle="modal"> <i class="icon-mail"></i> CONTACT</a></p-->
       </div>
     </div>
     <script type="text/javascript">
