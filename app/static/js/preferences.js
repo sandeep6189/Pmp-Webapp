@@ -15,7 +15,9 @@
 
 	app.controller('AppController',['$http','$scope',function($http,$scope){
 		$scope.prefered = [];
-		var userName = $('#current_user').html();
+		$scope.image_src = {};
+        var dic = {};
+        var userName = $('#current_user').html();
 		var userEmail = $('#current_user_email').html();
 		$http({
                     method: "post",
@@ -26,40 +28,105 @@
                     }
                 }).success(function(data){
 
-                	$scope.prefered = data.entries;
-                	//console.log($scope.prefered);
-                });
-        $scope.removePreference = function(bundleId)
-        	{
-        		var r = confirm("Are you sure you want to remove this app ?");
-        		if(r==true)
-        		{
-        			var data = {user:userName,email:userEmail,bundleId:bundleId};
-        			$.post("/pmp/remove_preferences",data,function(response){
-        					if(response==1)
-        					{
-        						location.reload();
-        					}
-        					else
-        						alert("Try Again !");
-        			});
-        		}
-        	};
-        $scope.DisplayData = function(bundleId)
-            {
-                var id = bundleId[0][0];
-                //console.log(id);
-                //var data = $("#"+id).html();
-                $("#app_info_area li").each(function(index){
-                    $(this).children("div").hide();
-                });
-                $("#"+id).show();
-                //console.log(data);
-                //var html = $.parseHTML(data);               
-                //$("#app_info_area").html(html);
-            };
-        
+                $scope.prefered = data.entries;
+                   angular.forEach($scope.prefered,function(value,index){
+                        var bid = value.bundleid;
+                        //console.log(bid);
 
+                        if(typeof(Storage) !== "undefined") {
+                          var url=localStorage.getItem(bid); 
+                          if( url !==null)
+                          {
+                            //return the image url
+                            dic[bid] = url;
+                          }
+                          else
+                          {
+                            var url = "";
+                            //make a post call to get the image_url , set in the localStorage of the client  
+                                $http({
+                                    method: "post",
+                                    url: "/pmp/get_icon",
+                                    data: {
+                                        id:bid
+                                    }
+                                }).success(function(data){
+                                    dic[bid] = data;
+                                    console.log(data);
+                                    localStorage.setItem(bid,data);
+                                });
+                            }
+                        }
+
+                    });
+                    $scope.image_src = dic;
+                    console.log($scope.image_src);
+
+                    $scope.values = dic;
+
+                    $scope.getChildren = function(parent) {
+                      var children = [];
+                      //for (var i = 0; i < dic.length; i++) {
+                        //if (arr2[i].parent_id == parent.id) {
+                          children.push(dic[parent.bundleid]);
+                        //}
+                      //}
+                      return children;
+                    };
+
+                    $scope.removePreference = function(bundleId)
+                        {
+                            var r = confirm("Are you sure you want to remove this app ?");
+                            if(r==true)
+                            {
+                                var data = {user:userName,email:userEmail,bundleId:bundleId};
+                                $.post("/pmp/remove_preferences",data,function(response){
+                                        if(response==1)
+                                        {
+                                            location.reload();
+                                        }
+                                        else
+                                            alert("Try Again !");
+                                });
+                            }
+                        };
+                    $scope.DisplayData = function(bundleId)
+                        {
+                            var id = bundleId[0][0];
+                            //console.log(id);
+                            //var data = $("#"+id).html();
+                            $("#app_info_area li").each(function(index){
+                                $(this).children("div").hide();
+                            });
+                            $("#"+id).show();
+                            //console.log(data);
+                            //var html = $.parseHTML(data);               
+                            //$("#app_info_area").html(html);
+                        };
+                    $scope.GetImage = function(bundleid)
+                        {
+                            //console.log(bundleid)
+                            if(typeof(Storage) !== "undefined") {
+                              var url =localStorage.getItem(String(bundleid)); 
+                              if( url !==null)
+                              {
+                                //return the image url
+                                return url;
+                              }
+                              else
+                              {
+                                var url = "";
+                                //make a post call to get the image_url , set in the localStorage of the client  
+                                $.post("/pmp/get_icon",{id:String(bundleid)},function(response){
+                                  url = response;
+                                  //console.log(url);
+                                });
+                                return url;
+                              }
+                            }
+                        };
+        });
+        
 	}]);
 
 	app.controller('SearchPreferenceController',function($scope){

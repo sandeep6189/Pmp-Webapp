@@ -63,13 +63,19 @@
     <div class="container profile">
       <div class="span8">
         <h3 style="color:rgb(12, 197, 127);font-weight:bold">Current Preferred Apps</h3>
-        <div id="preferred_apps" ng-controller="AppController as apps">
+        <div id="preferred_apps" ng-controller="AppController">
           <div class="row">  
             <ol style="list-style:none;overflow:auto;height:400px;overflow-x:hidden;" class="span4" style=""> 
                 <li class="stbody" data-ng-repeat="app in prefered"  ng-click="DisplayData([[$index]])" style="cursor:pointer">
                     <a href="" class="img_click">
                       <div class="stimg">
-                            <img ng-src="[[app.icon]]" width="60" height="60" />    
+                          <div ng-repeat="value in getChildren(app)" id="app.bundleid">
+
+                                  
+                                  <img data-ng-src="[[value]]" width="60" height="60"  />    
+                              
+                            </div>
+                                
                       </div>
                     </a> 
                     <div class="sttext">
@@ -150,7 +156,7 @@
     <!-- Footer -->
     <div class="footer" style="left:0;height:50px">
       <div class="container">
-        <p class="pull-left" style="margin-top:10px"><a href="#">Copyright &#169; SynergyLabs</a></p>
+        <p class="pull-left" style="margin-top:10px"><aif(typeof(Storage) !== "undefined") { href="#">Copyright &#169; SynergyLabs</a></p>
         <!--p class="pull-right" style="margin-top:10px"><a href="#myModal" role="button" data-toggle="modal"> <i class="icon-mail"></i> CONTACT</a></p-->
       </div>
     </div>
@@ -160,6 +166,10 @@
           e.preventDefault()
         $(this).tab('show')
         });
+
+      $(".img_src").each(function(){
+        console.log("11");
+      });
     });
     </script>
     </body>

@@ -14,6 +14,8 @@ from flask.ext.social import Social
 from flask.ext.social.datastore import SQLAlchemyConnectionDatastore
 from flask.ext.security import Security , SQLAlchemyUserDatastore
 from oauth import OAuthSignIn
+import urllib2
+from utilities import *
 #from flask_util_js import FlaskUtilJs
 
 #fujs = FlaskUtilJs(app)
@@ -275,38 +277,6 @@ def categories():
 			#print row_data
 		return json.dumps(lis)
 
-def get_data_from_id(data):
-	cursor = mysql.connect().cursor()
-	lis = []
-	for row in data:
-		bundle_id = row
-		cursor.execute("SELECT `app_desc`.`bundle_id`,`app_desc`.`app_name`,`app_desc`.`version`,`app_desc`.`genre`,`images`.`icon`, `images`.`screenshot`, `rating`.`avg_rating`, `rating`.`rating_count`,`bundle`.`track_url` FROM app_desc INNER JOIN images ON app_desc.bundle_id = images.bundle_id INNER JOIN rating ON images.bundle_id = rating.bundle_id INNER JOIN bundle ON rating.bundle_id = bundle.bundle_id WHERE app_desc.bundle_id =  '"+bundle_id+"' LIMIT 10")
-		cur_data = cursor.fetchone()
-		dic = {}
-		dic["bundle_id"] = cur_data[0]
-		dic["app_name"] = cur_data[1]
-		dic["version"] = cur_data[2]
-		dic["genre"] = cur_data[3]
-		dic["icon"] = cur_data[4]
-		dic["avg_rating"] = cur_data[6]
-		dic["track_url"] = cur_data[8]
-		lis.append(dic)
-	return json.dumps(lis)
-
-
-@app.route("/search",methods=['POST'])
-def search():
-	if request.method == "POST":
-		app.config['MYSQL_DATABASE_DB'] = 'pmp'
-		query = request.form['query']
-		cursor = mysql.connect().cursor()
-		cursor.execute("SELECT DISTINCT `bundle_id` FROM `app_desc` WHERE `app_name` LIKE '%"+query+"%' LIMIT 10")
-		data = cursor.fetchall()
-		lis = []
-		for row in data:
-			lis.append(row[0])
-		return get_data_from_id(lis)
-
 
 @app.route("/search_new",methods=['POST'])
 def search_new():
@@ -322,61 +292,19 @@ def search_new():
 			lis.append(row[0])
 		return get_data_from_id_2(lis)
 
-def get_data_from_id_2(data):
-	cursor = mysql.connect().cursor()
-	#print cursor.description
-	lis = []
-	for row in data:
-		bundle_id = row
-		cursor.execute("SELECT * FROM `recommend` WHERE `bundleid` = '"+bundle_id+"' LIMIT 10")
-		field_names = [i[0] for i in cursor.description]
-		indices = []
-		#get accessed fields
-		for i in range(0,len(field_names)):
-			if "accessed" in field_names[i]:
-				indices.append(i)
-		#get recommended fields
-		indices_recommend = []
-		for i in range(0,len(field_names)):
-			if "recommend" in field_names[i]:
-				indices_recommend.append(i)
 
-		cur_data = cursor.fetchone()
-		privacy_data_accessed = []
-		recommended_protect = []
-		dic = {}
-
-		if cur_data !=None:
-			dic['name'] = cur_data[1]
-			dic['version'] = cur_data[2]
-			dic['bundleid'] = cur_data[0]
-			for i in indices:
-				if cur_data[i]>=1:
-					privacy_data_accessed.append(textify(field_names[i]))
-			for i in indices_recommend:
-				if cur_data[i]=="0":
-					recommended_protect.append({"field_name":textify_recommend(field_names[i]),"value":"No"})
-				elif cur_data[i]=="1":
-					recommended_protect.append({"field_name":textify_recommend(field_names[i]),"value":"Yes"})
-			dic['privacy'] = privacy_data_accessed
-			dic['recommended_protect'] = recommended_protect
-			#print recommended_protect
-			lis.append(dic)
-	dic2 = {}
-	dic2["entries"]=lis
-	return json.dumps(dic2)
-
-
-def textify(field_name):
-	st = field_name.split("_")[1:]
-	st[0] = st[0].title()
-	return " ".join(st)
-
-def textify_recommend(field_name):
-	st = field_name.split("_")[1:]
-	#st = st[1:]
-	st[0] = st[0].title()
-	return " ".join(st)	
+@app.route("/search",methods=['POST'])
+def search():
+	if request.method == "POST":
+		app.config['MYSQL_DATABASE_DB'] = 'pmp'
+		query = request.form['query']
+		cursor = mysql.connect().cursor()
+		cursor.execute("SELECT DISTINCT `bundle_id` FROM `app_desc` WHERE `app_name` LIKE '%"+query+"%' LIMIT 10")
+		data = cursor.fetchall()
+		lis = []
+		for row in data:
+			lis.append(row[0])
+		return get_data_from_id(lis)
 
 @app.route("/info",methods=['POST','GET'])
 def info():
@@ -501,20 +429,79 @@ def search_results():
 		
 		img_str = ""
 		count = 0
-		'''
-		if int(rating)<=5:
-			for i in range(0,int(rating)):
-				img_str= img_str+"<img src='/static/img/full.png' alt='' style='height:12px'>"
-				count = count + 1
-          	half = rating - int(rating)
-          	if half==0.5:
-          		img_str=img_str+"<img src='/static/img/half.png' alt='' style='height:12px'>"
-            	count = count + 1
-        	while count<5:
-				img_str = img_str+"<img src='static/img/empty.png' alt='' style='height:12px'>"
-            	count = count + 1
-          
-		#print html_str
-		'''
 		lis = [img_str,url,img,app_name,version,genre]
 		return json.dumps(lis)
+
+@app.route("/get_icon",methods=['POST'])
+@login_required
+def get_icon():
+	if request.method=="POST":
+		val = json.loads(request.data)
+		bundleid = val["id"]
+		return get_image_url(bundleid)
+
+def get_data_from_id(data):
+	cursor = mysql.connect().cursor()
+	lis = []
+	for row in data:
+		bundle_id = row
+		cursor.execute("SELECT `app_desc`.`bundle_id`,`app_desc`.`app_name`,`app_desc`.`version`,`app_desc`.`genre`,`images`.`icon`, `images`.`screenshot`, `rating`.`avg_rating`, `rating`.`rating_count`,`bundle`.`track_url` FROM app_desc INNER JOIN images ON app_desc.bundle_id = images.bundle_id INNER JOIN rating ON images.bundle_id = rating.bundle_id INNER JOIN bundle ON rating.bundle_id = bundle.bundle_id WHERE app_desc.bundle_id =  '"+bundle_id+"' LIMIT 10")
+		cur_data = cursor.fetchone()
+		dic = {}
+		dic["bundle_id"] = cur_data[0]
+		dic["app_name"] = cur_data[1]
+		dic["version"] = cur_data[2]
+		dic["genre"] = cur_data[3]
+		dic["icon"] = cur_data[4]
+		dic["avg_rating"] = cur_data[6]
+		dic["track_url"] = cur_data[8]
+		lis.append(dic)
+	return json.dumps(lis)
+
+
+def get_data_from_id_2(data):
+	cursor = mysql.connect().cursor()
+	#print cursor.description
+	lis = []
+	for row in data:
+		bundle_id = row
+		cursor.execute("SELECT * FROM `recommend` WHERE `bundleid` = '"+bundle_id+"' LIMIT 10")
+		field_names = [i[0] for i in cursor.description]
+		indices = []
+		#get accessed fields
+		for i in range(0,len(field_names)):
+			if "accessed" in field_names[i]:
+				indices.append(i)
+		#get recommended fields
+		indices_recommend = []
+		for i in range(0,len(field_names)):
+			if "recommend" in field_names[i]:
+				indices_recommend.append(i)
+
+		cur_data = cursor.fetchone()
+		privacy_data_accessed = []
+		recommended_protect = []
+		dic = {}
+
+		#get image url from utilities py file
+		#image_url = get_image_url(bundle_id)
+		#dic['image'] = image_url
+		if cur_data !=None:
+			dic['name'] = cur_data[1]
+			dic['version'] = cur_data[2]
+			dic['bundleid'] = cur_data[0]
+			for i in indices:
+				if cur_data[i]>=1:
+					privacy_data_accessed.append(textify(field_names[i]))
+			for i in indices_recommend:
+				if cur_data[i]=="0":
+					recommended_protect.append({"field_name":textify_recommend(field_names[i]),"value":"No"})
+				elif cur_data[i]=="1":
+					recommended_protect.append({"field_name":textify_recommend(field_names[i]),"value":"Yes"})
+			dic['privacy'] = privacy_data_accessed
+			dic['recommended_protect'] = recommended_protect
+			#print recommended_protect
+			lis.append(dic)
+	dic2 = {}
+	dic2["entries"]=lis
+	return json.dumps(dic2)	
