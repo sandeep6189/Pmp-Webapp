@@ -12,10 +12,10 @@ from flask.ext.social.datastore import SQLAlchemyConnectionDatastore
 from flask.ext.security import Security , SQLAlchemyUserDatastore
 from oauth import OAuthSignIn
 #-------------------Log imports-----------------------#
-import logging
-from logging.handlers import RotatingFileHandler
-from logging import Formatter
-from logging.handlers import SMTPHandler
+#import logging
+#from logging.handlers import RotatingFileHandler
+#from logging import Formatter
+#from logging.handlers import SMTPHandler
 #-----------------------------------------------------#
 
 #set file handlers-------------------------------------
@@ -36,19 +36,20 @@ googlelogin = GoogleLogin(app)
 ADMINS = ['sandeep6189@gmail.com']
 
 #-------------------------------------------------------
-@app.before_first_request
-def setup_logging():
-    if not app.debug:
-        # In production mode, add log handler to sys.stderr.
-        app.logger.addHandler(logging.StreamHandler())
-        app.logger.setLevel(logging.INFO)
-        logging.basicConfig(filename='/tmp/error.log',level=logging.INFO)
-        #mail handler configuration
-        '''
-        mail_handler = SMTPHandler('Federer','server-error@pmp-webapp.com', ADMINS, 'YourApplication Failed')
-    	mail_handler.setLevel(logging.ERROR)
-    	app.logger.addHandler(mail_handler)
-    	'''
+#@app.before_first_request
+#def setup_logging():
+#    if not app.debug:
+#	temp = 1
+#        # In production mode, add log handler to sys.stderr.
+#        #app.logger.addHandler(logging.StreamHandler())
+#        #app.logger.setLevel(logging.INFO)
+#        #logging.basicConfig(filename='/tmp/error.log',level=logging.INFO)
+#        #mail handler configuration
+#        '''
+#        mail_handler = SMTPHandler('Federer','server-error@pmp-webapp.com', ADMINS, 'YourApplication Failed')
+#    	mail_handler.setLevel(logging.ERROR)
+#    	app.logger.addHandler(mail_handler)
+#    	'''
 
 @lm.user_loader
 def load_user(id):
@@ -130,7 +131,7 @@ def add_preferences():
 			b = aa.preferences
 			bundleId = bundleId + ";"+b
 		print bundleId
-		db1 = MySQLdb.connect("localhost","root","admin","pmp" )
+		db1 = MySQLdb.connect("localhost","pmp","$yn3rgYaz1b34","pmp" )
 		cursor =db1.cursor()
 		if(aa and aa.email):
 			aa.preferences = bundleId
