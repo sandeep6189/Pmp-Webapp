@@ -132,13 +132,14 @@ def add_preferences():
 		if aa:
 			b = aa.preferences
 			bundleId = bundleId + ";"+b
-		cursor = mysql.connect().cursor()
 		if(aa and aa.email):
 			aa.preferences = bundleId
 			db.session.commit()
 		else:
+			cursor = mysql.connect().cursor()
 			cursor.execute("INSERT INTO  `pmp`.`user__preferences` (`nickname` ,`preferences` ,`last_accessed` ,`last_updated` ,`email`) VALUES ('"+userName+"',  '"+bundleId+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+userEmail+"');")
-		return "Success"			
+			cursor.close()
+	return "Success"			
 
 
 @app.route('/get_preferences',methods=['POST','GET'])
@@ -171,7 +172,6 @@ def remove_preferences():
 			current = current_preferences.split(";")
 			current.remove(bundle_id)
 			pref = ";".join(current)
-			#print pref
 			#update the user preference table
 			user_pref_obj.preferences = pref
 			db.session.commit()
@@ -276,6 +276,7 @@ def search_new():
 		cursor = mysql.connect().cursor()
 		cursor.execute("SELECT DISTINCT `bundleid` FROM `recommend` WHERE `name` LIKE '%"+query+"%' LIMIT 10")
 		data = cursor.fetchall()
+		cursor.close()
 		lis = []
 		for row in data:
 			lis.append(row[0])
@@ -289,6 +290,7 @@ def search():
 		cursor = mysql.connect().cursor()
 		cursor.execute("SELECT DISTINCT `bundle_id` FROM `app_desc` WHERE `app_name` LIKE '%"+query+"%' LIMIT 10")
 		data = cursor.fetchall()
+		cursor.close()
 		lis = []
 		for row in data:
 			lis.append(row[0])
@@ -358,7 +360,7 @@ def app_details():
 		cursor = mysql.connect().cursor()
 		cursor.execute("SELECT * FROM  `top_paid_apps` WHERE bundle_id = '%s' UNION SELECT *	FROM  `top_free_apps` WHERE bundle_id = '%s' " % (idd,idd))
 		row = cursor.fetchone()
-		#cursor.close()
+		cursor.close()
 		app_name = row[4]
 		icon = row[7]
 		track_url = row[6]
@@ -366,14 +368,11 @@ def app_details():
 		bundle_id = row[1]
 		version = row[3]
 		genre = row[5]
-		#lis = []
-		
 		if len(app_name) > 16:
 			app_name = app_name[0:14]+"..."
 		
 		img_str = ""
 		count = 0
-
 		if int(rating)<=5:
 			for i in range(0,int(rating)):
 				img_str= img_str+'''<img src="/static/img/full.png" alt='' style='height:12px'>'''
@@ -385,9 +384,6 @@ def app_details():
         	while count<5:
 				img_str = img_str+'''<img src='static/img/empty.png' alt='' style='height:12px'>'''
             	count = count + 1
-          
-		#print html_str
-
 		lis = [img_str,url,img,app_name,version,genre]
 		return json.dumps(lis)
 
@@ -468,6 +464,7 @@ def get_data_from_id(data):
 		dic["avg_rating"] = cur_data[6]
 		dic["track_url"] = cur_data[8]
 		lis.append(dic)
+	cursor.close()
 	return json.dumps(lis)
 
 
@@ -508,4 +505,5 @@ def get_data_from_id_2(data):
 			lis.append(dic)
 	dic2 = {}
 	dic2["entries"]=lis
+	cursor.close()
 	return json.dumps(dic2)	
