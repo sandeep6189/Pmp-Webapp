@@ -11,8 +11,8 @@ db = SQLAlchemy(app)
 lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'admin'
+app.config['MYSQL_DATABASE_USER'] = 'pmp'
+app.config['MYSQL_DATABASE_PASSWORD'] = '$yn3rgYaz1b34'
 app.config['MYSQL_DATABASE_DB'] = 'pmp'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 app.config['SOCIAL_GOOGLE'] = {
