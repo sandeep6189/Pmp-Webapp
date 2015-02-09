@@ -1,58 +1,54 @@
-from app import app
+from app import app,lm,db
 from models import User , User_Preferences
 from flask import request, redirect, url_for, send_from_directory ,flash ,render_template ,g ,session
 from flask_debugtoolbar import DebugToolbarExtension
 from flaskext.mysql import MySQL
 from flask.ext.login import LoginManager , login_user, logout_user, current_user, login_required , UserMixin
-import json,datetime,time
-import MySQLdb
+import json,datetime,time,MySQLdb,urllib2
 from user_agents import parse
-from forms import LoginForm
-from app import lm,db
 from flask_googlelogin import GoogleLogin
 from flask.ext.social import Social
 from flask.ext.social.datastore import SQLAlchemyConnectionDatastore
 from flask.ext.security import Security , SQLAlchemyUserDatastore
 from oauth import OAuthSignIn
-import urllib2
-from utilities import *
-#from flask_util_js import FlaskUtilJs
+#-------------------Log imports-----------------------#
+import logging
+from logging.handlers import RotatingFileHandler
+from logging import Formatter
+from logging.handlers import SMTPHandler
+#-----------------------------------------------------#
 
-#fujs = FlaskUtilJs(app)
-#app = Flask(__name__)
-
-#login_manager = LoginManager()
-#login_manager.init_app(app)
-#configure the database
-#app.config["APPLICATION_ROOT"]= "/pmp"
-
+#set file handlers-------------------------------------
+'''
+file_handler = RotatingFileHandler('error.log',maxBytes=1024 * 1024 * 100, backupCount=2)
+file_handler.setLevel(logging.ERROR)
+file_handler.setFormatter(Formatter(
+    '%(asctime)s %(levelname)s: %(message)s '
+    '[in %(pathname)s:%(lineno)d]'
+))
+app.logger.addHandler(file_handler)
+'''
+#------------------------------------------------------
+# initializing required modules
 mysql = MySQL()
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'admin'
-app.config['MYSQL_DATABASE_DB'] = 'pmp'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 googlelogin = GoogleLogin(app)
-app.config['SOCIAL_GOOGLE'] = {
-    'consumer_key': '969188133123-6tbmkj0oe22pcr693tf7ljv8pcvn4u50.apps.googleusercontent.com',
-    'consumer_secret': 'j_hcIMGTVS9_cOrg4YsVgBBL'
-}
-app.config['OAUTH_CREDENTIALS'] = {
-    'facebook': {
-        'id': '1598411600380707',
-        'secret': '2856eb415bbb9d7ea6b898394ee80f82'
-    },
-    'twitter': {
-        'id': '3RzWQclolxWZIMq5LJqzRZPTl',
-        'secret': 'm9TEd58DSEtRrZHpz2EjrV9AhsBRxKMo8m3kuIZj3zLwzwIimt'
-    },
-    'google': {
-        'id': '969188133123-6tbmkj0oe22pcr693tf7ljv8pcvn4u50.apps.googleusercontent.com',
-        'secret': 'j_hcIMGTVS9_cOrg4YsVgBBL'
-    }
-}
+ADMINS = ['sandeep6189@gmail.com']
 
-
+#-------------------------------------------------------
+@app.before_first_request
+def setup_logging():
+    if not app.debug:
+        # In production mode, add log handler to sys.stderr.
+        app.logger.addHandler(logging.StreamHandler())
+        app.logger.setLevel(logging.INFO)
+        logging.basicConfig(filename='/tmp/error.log',level=logging.INFO)
+        #mail handler configuration
+        '''
+        mail_handler = SMTPHandler('Federer','server-error@pmp-webapp.com', ADMINS, 'YourApplication Failed')
+    	mail_handler.setLevel(logging.ERROR)
+    	app.logger.addHandler(mail_handler)
+    	'''
 
 @lm.user_loader
 def load_user(id):
@@ -67,11 +63,6 @@ def before_request():
 def login():
     if g.user is not None and g.user.is_authenticated():
         return redirect(url_for('index'))
-    '''
-    if form.validate_on_submit():
-        session['remember_me'] = form.remember_me.data
-        return oid.try_login(form.openid.data, ask_for=['nickname', 'email','image','gender','country','phone','dob','timezone'])
-    '''
     return render_template('login.html',
                            title='Sign In')
 
@@ -146,7 +137,6 @@ def add_preferences():
 			db.session.commit()
 		else:
 			cursor.execute("INSERT INTO  `pmp`.`user__preferences` (`nickname` ,`preferences` ,`last_accessed` ,`last_updated` ,`email`) VALUES ('"+userName+"',  '"+bundleId+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+userEmail+"');")
-			#print "INSERT INTO  `pmp`.`user__preferences` (`nickname` ,`preferences` ,`last_accessed` ,`last_updated` ,`email`) VALUES ('"+userName+"',  '"+bundleId+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+userEmail+"');"
 			db1.commit()
 		return "Success"			
 
@@ -164,6 +154,7 @@ def get_preferences():
 			current = current_preferences.split(";")
 			#print current
 			return get_data_from_id_2(current)
+		#app.logger.error('An error occurred')
 		return ""		
 
 @app.route('/remove_preferences',methods=['POST','GET'])
@@ -198,7 +189,7 @@ def info_apps():
 	if request.method == "POST":
 		id_app = request.form["bundle_id[0][]"]
 		cursor = mysql.connect().cursor()
-		cursor.execute("SELECT * FROM `app_desc` WHERE `bundle_id`="+id_app+"  LIMIT 0 , 1")
+		cursor.execute("SELECT * FROM `app_desc` WHERE `bundle_id`='%s'  LIMIT 0 , 1" % (id_app))
 		data = cursor.fetchone()
 		cursor.close()
 		lis = {}
@@ -256,10 +247,10 @@ def categories():
 		category = request.form['category']
 		cursor = mysql.connect().cursor()
 		#from top free apps
-		cursor.execute("SELECT * FROM  `top_free_apps` WHERE genre = '"+category+"' LIMIT 0 , 5")
+		cursor.execute("SELECT * FROM  `top_free_apps` WHERE genre = '%s' LIMIT 0 , 5" % (category))
 		data = cursor.fetchall()
 		#from top paid apps
-		cursor.execute("SELECT * FROM  `top_paid_apps` WHERE genre = '"+category+"' LIMIT 0 , 5")
+		cursor.execute("SELECT * FROM  `top_paid_apps` WHERE genre = '%s' LIMIT 0 , 5" % (category))
 		data2= cursor.fetchall()
 		cursor.close()
 		lis = []
@@ -368,7 +359,7 @@ def app_details():
 		url = request.form['url']
 		idd =  request.form['id']
 		cursor = mysql.connect().cursor()
-		cursor.execute("SELECT * FROM  `top_paid_apps` WHERE bundle_id = "+idd+" UNION SELECT *	FROM  `top_free_apps` WHERE bundle_id = "+idd+"")
+		cursor.execute("SELECT * FROM  `top_paid_apps` WHERE bundle_id = '%s' UNION SELECT *	FROM  `top_free_apps` WHERE bundle_id = '%s' " % (idd,idd))
 		row = cursor.fetchone()
 		#cursor.close()
 		app_name = row[4]
@@ -411,7 +402,7 @@ def search_results():
 		idd =  request.form['id']
 		#print idd
 		cursor = mysql.connect().cursor()
-		cursor.execute("SELECT app_desc.app_name,app_desc.version,app_desc.genre, rating.avg_rating FROM app_desc INNER JOIN images ON app_desc.bundle_id = images.bundle_id	INNER JOIN rating ON images.bundle_id = rating.bundle_id INNER JOIN bundle ON rating.bundle_id = bundle.bundle_id WHERE app_desc.bundle_id =  '"+idd+"' LIMIT 10")
+		cursor.execute("SELECT app_desc.app_name,app_desc.version,app_desc.genre, rating.avg_rating FROM app_desc INNER JOIN images ON app_desc.bundle_id = images.bundle_id	INNER JOIN rating ON images.bundle_id = rating.bundle_id INNER JOIN bundle ON rating.bundle_id = bundle.bundle_id WHERE app_desc.bundle_id =  '%s' LIMIT 10" % (idd))
 		row = cursor.fetchone()
 		cursor.close()
 		#print row
@@ -440,12 +431,43 @@ def get_icon():
 		bundleid = val["id"]
 		return get_image_url(bundleid)
 
+
+#-----------utilities functions----------------------#
+
+#function to get image from apple
+def get_image_url(bundleid):
+	req = urllib2.urlopen("http://itunes.apple.com/lookup?bundleId="+str(bundleid))
+	data = None
+	image_url = None
+	if req:
+		data = json.loads(req.read())
+	if data:
+		try:
+			image_url = data['results'][0]['artworkUrl60']
+		except Exception: 
+			image_url = ""
+	#print image_url
+	return image_url
+
+#function to get processed text for accesses column
+def textify(field_name):
+	st = field_name.split("_")[1:]
+	st[0] = st[0].title()
+	return " ".join(st)
+
+#function to get processed text for recommend column
+def textify_recommend(field_name):
+	st = field_name.split("_")[1:]
+	#st = st[1:]
+	st[0] = st[0].title()
+	return " ".join(st)
+
 def get_data_from_id(data):
 	cursor = mysql.connect().cursor()
 	lis = []
 	for row in data:
 		bundle_id = row
-		cursor.execute("SELECT `app_desc`.`bundle_id`,`app_desc`.`app_name`,`app_desc`.`version`,`app_desc`.`genre`,`images`.`icon`, `images`.`screenshot`, `rating`.`avg_rating`, `rating`.`rating_count`,`bundle`.`track_url` FROM app_desc INNER JOIN images ON app_desc.bundle_id = images.bundle_id INNER JOIN rating ON images.bundle_id = rating.bundle_id INNER JOIN bundle ON rating.bundle_id = bundle.bundle_id WHERE app_desc.bundle_id =  '"+bundle_id+"' LIMIT 10")
+		cursor.execute("SELECT `app_desc`.`bundle_id`,`app_desc`.`app_name`,`app_desc`.`version`,`app_desc`.`genre`,`images`.`icon`, `images`.`screenshot`, `rating`.`avg_rating`, `rating`.`rating_count`,`bundle`.`track_url` FROM app_desc INNER JOIN images ON app_desc.bundle_id = images.bundle_id INNER JOIN rating ON images.bundle_id = rating.bundle_id INNER JOIN bundle ON rating.bundle_id = bundle.bundle_id WHERE app_desc.bundle_id =  '%s' LIMIT 10" % (bundle_id))
 		cur_data = cursor.fetchone()
 		dic = {}
 		dic["bundle_id"] = cur_data[0]
@@ -465,7 +487,7 @@ def get_data_from_id_2(data):
 	lis = []
 	for row in data:
 		bundle_id = row
-		cursor.execute("SELECT * FROM `recommend` WHERE `bundleid` = '"+bundle_id+"' LIMIT 10")
+		cursor.execute("SELECT * FROM `recommend` WHERE `bundleid` = '%s' LIMIT 10" % (bundle_id))
 		field_names = [i[0] for i in cursor.description]
 		indices = []
 		#get accessed fields
@@ -482,10 +504,6 @@ def get_data_from_id_2(data):
 		privacy_data_accessed = []
 		recommended_protect = []
 		dic = {}
-
-		#get image url from utilities py file
-		#image_url = get_image_url(bundle_id)
-		#dic['image'] = image_url
 		if cur_data !=None:
 			dic['name'] = cur_data[1]
 			dic['version'] = cur_data[2]
@@ -500,8 +518,8 @@ def get_data_from_id_2(data):
 					recommended_protect.append({"field_name":textify_recommend(field_names[i]),"value":"Yes"})
 			dic['privacy'] = privacy_data_accessed
 			dic['recommended_protect'] = recommended_protect
-			#print recommended_protect
 			lis.append(dic)
 	dic2 = {}
 	dic2["entries"]=lis
+	#app.logger.error('An error occurred')
 	return json.dumps(dic2)	
