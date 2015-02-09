@@ -11,4 +11,4 @@ OPENID_PROVIDERS = [
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 #basedir = os.path.join(ldir,'pmp')
-SQLALCHEMY_DATABASE_URI = 'mysql://pmp:$yn3rgYaz1b34@localhost/pmp'
+SQLALCHEMY_DATABASE_URI = 'mysql://root:admin@localhost/pmp'

@@ -138,7 +138,6 @@ def add_preferences():
 			db.session.commit()
 		else:
 			cursor.execute("INSERT INTO  `pmp`.`user__preferences` (`nickname` ,`preferences` ,`last_accessed` ,`last_updated` ,`email`) VALUES ('"+userName+"',  '"+bundleId+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+time.strftime('%Y-%m-%d %H:%M:%S')+"',  '"+userEmail+"');")
-			db1.commit()
 		return "Success"			
 
 
