@@ -51,6 +51,8 @@ ADMINS = ['sandeep6189@gmail.com']
 #    	app.logger.addHandler(mail_handler)
 #    	'''
 
+app.debug = True
+
 @lm.user_loader
 def load_user(id):
     return User.query.get(int(id))
@@ -130,9 +132,7 @@ def add_preferences():
 		if aa:
 			b = aa.preferences
 			bundleId = bundleId + ";"+b
-		print bundleId
-		db1 = MySQLdb.connect("localhost","pmp","$yn3rgYaz1b34","pmp" )
-		cursor =db1.cursor()
+		cursor = mysql.connect().cursor()
 		if(aa and aa.email):
 			aa.preferences = bundleId
 			db.session.commit()
@@ -288,7 +288,6 @@ def search_new():
 @app.route("/search",methods=['POST'])
 def search():
 	if request.method == "POST":
-		app.config['MYSQL_DATABASE_DB'] = 'pmp'
 		query = request.form['query']
 		cursor = mysql.connect().cursor()
 		cursor.execute("SELECT DISTINCT `bundle_id` FROM `app_desc` WHERE `app_name` LIKE '%"+query+"%' LIMIT 10")
@@ -401,12 +400,10 @@ def search_results():
 		img = request.form['img_src']
 		url = request.form['url']
 		idd =  request.form['id']
-		#print idd
 		cursor = mysql.connect().cursor()
 		cursor.execute("SELECT app_desc.app_name,app_desc.version,app_desc.genre, rating.avg_rating FROM app_desc INNER JOIN images ON app_desc.bundle_id = images.bundle_id	INNER JOIN rating ON images.bundle_id = rating.bundle_id INNER JOIN bundle ON rating.bundle_id = bundle.bundle_id WHERE app_desc.bundle_id =  '%s' LIMIT 10" % (idd))
 		row = cursor.fetchone()
 		cursor.close()
-		#print row
 		app_name = row[0]
 		icon = img
 		track_url = url
@@ -414,11 +411,8 @@ def search_results():
 		bundle_id = idd
 		version = row[1]
 		genre = row[2]
-		#lis = []
-		
 		if len(app_name) > 16:
 			app_name = app_name[0:14]+"..."
-		
 		img_str = ""
 		count = 0
 		lis = [img_str,url,img,app_name,version,genre]
@@ -447,7 +441,6 @@ def get_image_url(bundleid):
 			image_url = data['results'][0]['artworkUrl60']
 		except Exception: 
 			image_url = ""
-	#print image_url
 	return image_url
 
 #function to get processed text for accesses column
@@ -459,7 +452,6 @@ def textify(field_name):
 #function to get processed text for recommend column
 def textify_recommend(field_name):
 	st = field_name.split("_")[1:]
-	#st = st[1:]
 	st[0] = st[0].title()
 	return " ".join(st)
 
