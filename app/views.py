@@ -272,9 +272,7 @@ def categories():
 @app.route("/search_new",methods=['POST'])
 def search_new():
 	if request.method == "POST":
-		app.config['MYSQL_DATABASE_DB'] = 'pmp'
 		query = request.form['query']
-		#print query
 		cursor = mysql.connect().cursor()
 		cursor.execute("SELECT DISTINCT `bundleid` FROM `recommend` WHERE `name` LIKE '%"+query+"%' LIMIT 10")
 		data = cursor.fetchall()
@@ -475,18 +473,15 @@ def get_data_from_id(data):
 
 def get_data_from_id_2(data):
 	cursor = mysql.connect().cursor()
-	#print cursor.description
 	lis = []
 	for row in data:
 		bundle_id = row
 		cursor.execute("SELECT * FROM `recommend` WHERE `bundleid` = '%s' LIMIT 10" % (bundle_id))
 		field_names = [i[0] for i in cursor.description]
 		indices = []
-		#get accessed fields
 		for i in range(0,len(field_names)):
 			if "accessed" in field_names[i]:
 				indices.append(i)
-		#get recommended fields
 		indices_recommend = []
 		for i in range(0,len(field_names)):
 			if "recommend" in field_names[i]:
@@ -513,5 +508,4 @@ def get_data_from_id_2(data):
 			lis.append(dic)
 	dic2 = {}
 	dic2["entries"]=lis
-	#app.logger.error('An error occurred')
 	return json.dumps(dic2)	
